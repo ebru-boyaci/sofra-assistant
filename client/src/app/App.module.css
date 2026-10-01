@@ -1,0 +1,59 @@
+.root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  min-height: 0;
+}
+
+.chat {
+  padding: 1.25rem;
+  border-right: 1px solid var(--border);
+}
+
+.sidebar {
+  background: var(--surface);
+  overflow: auto;
+}
+
+.stub {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.auditStub {
+  padding: 0.75rem 1rem;
+}
+
+.auditTitle {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+@media (max-width: 800px) {
+  .body {
+    grid-template-columns: 1fr;
+  }
+
+  .chat {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+}
