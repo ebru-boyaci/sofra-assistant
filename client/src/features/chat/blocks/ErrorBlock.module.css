@@ -1,0 +1,37 @@
+.root {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.kicker {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--danger);
+}
+
+.code {
+  margin: 0;
+  font-size: 0.8rem;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  color: var(--muted);
+}
+
+.message {
+  margin: 0;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}

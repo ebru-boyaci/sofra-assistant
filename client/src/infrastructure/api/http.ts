@@ -1,4 +1,4 @@
-import { syncServerClock } from '../../domain/clock'
+import { syncServerClock } from '@/domain/clock'
 import { ApiError, TransportError, parseRetryAfterSeconds } from './errors'
 
 const SOFRA_NOW_HEADER = 'x-sofra-now'

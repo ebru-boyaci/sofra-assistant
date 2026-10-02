@@ -1,0 +1,7 @@
+.slot {
+  min-width: 0;
+}
+
+.skip {
+  display: none;
+}

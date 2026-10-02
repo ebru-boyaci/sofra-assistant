@@ -1,0 +1,13 @@
+.root {
+  min-height: 1.45em;
+  margin: 0;
+  padding: var(--space-2) 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  color: var(--text);
+}
+
+.empty {
+  color: var(--muted);
+}

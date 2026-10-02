@@ -1,5 +1,5 @@
-import { MOCK_USERS } from '../../shared/users'
-import { useCurrentUser } from '../../shared/useCurrentUser'
+import { MOCK_USERS } from '@/shared/users'
+import { useCurrentUser } from '@/shared/useCurrentUser'
 import styles from './Shell.module.css'
 
 export function Header() {

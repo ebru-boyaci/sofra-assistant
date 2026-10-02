@@ -3,8 +3,8 @@ import {
   getServerNowMs,
   resetServerClockForTests,
   syncServerClock,
-} from '../../domain/clock'
-import { createStreamSession } from '../streaming'
+} from '@/domain/clock'
+import { createStreamSession } from '@/infrastructure/streaming'
 import {
   ApiError,
   TransportError,

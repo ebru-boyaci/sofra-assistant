@@ -1,6 +1,6 @@
-import { syncServerClock } from '../../domain/clock'
-import type { AssembledStream } from '../streaming'
-import { type StreamSession } from '../streaming'
+import { syncServerClock } from '@/domain/clock'
+import type { AssembledStream } from '@/infrastructure/streaming'
+import { type StreamSession } from '@/infrastructure/streaming'
 import { ApiError, TransportError, parseRetryAfterSeconds } from './errors'
 import { captureSofraNow } from './http'
 

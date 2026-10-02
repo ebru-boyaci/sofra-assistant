@@ -1,7 +1,8 @@
-import { CartPanel } from '../features/shell/CartPanel'
-import { Header } from '../features/shell/Header'
-import { OrdersPanel } from '../features/shell/OrdersPanel'
-import { useCurrentUser } from '../shared/useCurrentUser'
+import { CatalogPreview } from '@/features/chat'
+import { CartPanel } from '@/features/shell/CartPanel'
+import { Header } from '@/features/shell/Header'
+import { OrdersPanel } from '@/features/shell/OrdersPanel'
+import { useCurrentUser } from '@/shared/useCurrentUser'
 import styles from './App.module.css'
 
 export function App() {
@@ -13,11 +14,9 @@ export function App() {
       <div className={styles.body}>
         <main className={styles.chat} aria-label="Chat">
           <p className={styles.stub}>
-            Chat surface placeholder. Current user: <code>{userId}</code>
+            Current user: <code>{userId}</code>
           </p>
-          <p className={styles.hint}>
-            Next: stream parser (Phase 2) — no generative UI wired yet.
-          </p>
+          <CatalogPreview />
         </main>
         <aside className={styles.sidebar} aria-label="Shell">
           <CartPanel />
