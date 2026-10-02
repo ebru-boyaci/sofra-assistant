@@ -1,3 +1,4 @@
+import type { ConfirmationView } from '@/domain/confirmation'
 import type {
   ConfirmationPromptBlock,
   TrustedBlock,
@@ -9,9 +10,8 @@ export type BlockListProps = {
   blocks: readonly TrustedBlock[]
   onConfirm?: (block: ConfirmationPromptBlock) => void
   onSuggestedAction?: (text: string) => void
+  getConfirmView?: (token: string) => ConfirmationView | null
   confirmDisabled?: boolean
-  confirmBusy?: boolean
-  confirmExpired?: boolean
   suggestedDisabled?: boolean
 }
 
@@ -36,9 +36,8 @@ export function BlockList({
   blocks,
   onConfirm,
   onSuggestedAction,
+  getConfirmView,
   confirmDisabled,
-  confirmBusy,
-  confirmExpired,
   suggestedDisabled,
 }: BlockListProps) {
   if (blocks.length === 0) return null
@@ -51,9 +50,12 @@ export function BlockList({
             block={block}
             onConfirm={onConfirm}
             onSuggestedAction={onSuggestedAction}
+            confirmView={
+              block.type === 'confirmation_prompt'
+                ? (getConfirmView?.(block.confirm_token) ?? null)
+                : null
+            }
             confirmDisabled={confirmDisabled}
-            confirmBusy={confirmBusy}
-            confirmExpired={confirmExpired}
             suggestedDisabled={suggestedDisabled}
           />
         </li>

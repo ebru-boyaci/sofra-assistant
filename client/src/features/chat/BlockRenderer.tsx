@@ -2,6 +2,7 @@ import type {
   ConfirmationPromptBlock,
   TrustedBlock,
 } from '@/domain/ui-spec'
+import type { ConfirmationView } from '@/domain/confirmation'
 import { CartSummary } from './blocks/CartSummary'
 import { ConfirmationPrompt } from './blocks/ConfirmationPrompt'
 import { ErrorBlockView } from './blocks/ErrorBlock'
@@ -17,9 +18,8 @@ export type BlockRendererProps = {
   block: TrustedBlock
   onConfirm?: (block: ConfirmationPromptBlock) => void
   onSuggestedAction?: (text: string) => void
+  confirmView?: ConfirmationView | null
   confirmDisabled?: boolean
-  confirmBusy?: boolean
-  confirmExpired?: boolean
   suggestedDisabled?: boolean
 }
 
@@ -27,9 +27,8 @@ export function BlockRenderer({
   block,
   onConfirm,
   onSuggestedAction,
+  confirmView = null,
   confirmDisabled,
-  confirmBusy,
-  confirmExpired,
   suggestedDisabled,
 }: BlockRendererProps) {
   switch (block.type) {
@@ -69,9 +68,8 @@ export function BlockRenderer({
           <ConfirmationPrompt
             block={block}
             onConfirm={onConfirm}
+            view={confirmView}
             disabled={confirmDisabled}
-            busy={confirmBusy}
-            expired={confirmExpired}
           />
         </div>
       )

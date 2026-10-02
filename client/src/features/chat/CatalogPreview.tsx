@@ -1,4 +1,8 @@
-import type { TrustedBlock } from '@/domain/ui-spec'
+import { syncServerClock } from '@/domain/clock'
+import type { ConfirmationPromptBlock, TrustedBlock } from '@/domain/ui-spec'
+import { useConfirmation } from '@/features/confirmation'
+import { useCurrentUser } from '@/shared/useCurrentUser'
+import { useEffect } from 'react'
 import { BlockList } from './BlockList'
 import styles from './CatalogPreview.module.css'
 
@@ -72,13 +76,44 @@ const PREVIEW_BLOCKS: TrustedBlock[] = [
 ]
 
 export function CatalogPreview() {
+  const { userId } = useCurrentUser()
+  const { register, confirm, viewFor, store } = useConfirmation()
+
+  useEffect(() => {
+    syncServerClock('2026-08-20T09:00:00.000Z')
+    for (const block of PREVIEW_BLOCKS) {
+      if (block.type === 'confirmation_prompt') {
+        register(userId, block)
+      }
+    }
+  }, [register, userId])
+
+  const followUps = store
+    .getAll()
+    .flatMap((entry) => entry.nextBlocks ?? [])
+
   return (
     <section className={styles.root} aria-label="Block catalog preview">
       <h2 className={styles.title}>Block catalog</h2>
       <p className={styles.hint}>
-        Confirm and chips stay inert until chat orchestration wires them.
+        Confirm is wired to the confirmation controller (one execute max).
       </p>
-      <BlockList blocks={PREVIEW_BLOCKS} />
+      <BlockList
+        blocks={PREVIEW_BLOCKS}
+        getConfirmView={viewFor}
+        onConfirm={(block: ConfirmationPromptBlock) => {
+          void confirm(block.confirm_token)
+        }}
+      />
+      {followUps.length > 0 && (
+        <BlockList
+          blocks={followUps}
+          getConfirmView={viewFor}
+          onConfirm={(block: ConfirmationPromptBlock) => {
+            void confirm(block.confirm_token)
+          }}
+        />
+      )}
     </section>
   )
 }
