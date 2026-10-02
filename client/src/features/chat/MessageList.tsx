@@ -1,5 +1,7 @@
 import type { ConfirmationView } from '@/domain/confirmation'
 import type { ConfirmationPromptBlock } from '@/domain/ui-spec'
+import { EmptyState } from '@/shared/ui'
+import { useEffect, useRef } from 'react'
 import { BlockList } from './BlockList'
 import type { AssistantTurnStatus, ChatTurn } from './chatTypes'
 import { statusLabel } from './statusLabel'
@@ -35,13 +37,19 @@ export function MessageList({
   onSuggestedAction,
   onRetry,
 }: Props) {
+  const endRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ block: 'end' })
+  }, [turns])
+
   if (turns.length === 0) {
     return (
-      <div className={styles.empty}>
-        <p className={styles.emptyTitle}>Sofra assistant</p>
-        <p className={styles.emptyHint}>
-          Ask about restaurants, your cart, or place an order.
-        </p>
+      <div className={styles.emptyWrap}>
+        <EmptyState
+          title="Sofra assistant"
+          hint="Ask about restaurants, your cart, or place an order."
+        />
       </div>
     )
   }
@@ -61,17 +69,18 @@ export function MessageList({
             <p className={styles.userText}>{turn.text}</p>
           ) : (
             <div className={styles.assistantBody}>
-              {(turn.status === 'loading' || turn.status === 'streaming') && (
-                <p
-                  className={`${styles.status} ${statusTone(turn.status)}`}
-                  aria-live="polite"
-                >
-                  <span className={styles.statusMark} aria-hidden="true">
-                    ·
-                  </span>
-                  {statusLabel(turn.status)}
-                </p>
-              )}
+              {(turn.status === 'loading' || turn.status === 'streaming') &&
+                turn.blocks.length === 0 && (
+                  <p
+                    className={`${styles.status} ${statusTone(turn.status)}`}
+                    aria-live="polite"
+                  >
+                    <span className={styles.statusMark} aria-hidden="true">
+                      ·
+                    </span>
+                    {statusLabel(turn.status)}
+                  </p>
+                )}
 
               {turn.blocks.length > 0 && (
                 <BlockList
@@ -125,6 +134,9 @@ export function MessageList({
           )}
         </li>
       ))}
+      <li className={styles.anchor} aria-hidden="true">
+        <div ref={endRef} />
+      </li>
     </ol>
   )
 }

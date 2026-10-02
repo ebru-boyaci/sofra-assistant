@@ -52,6 +52,13 @@ Built for keyboard-only paths (`sc_04`–`sc_05` / `sc_23`):
 - **States without colour alone:** gate / confirm / done / error / expired use text labels, icons/marks, and border style (solid / dashed / dotted), not hue alone.
 - **After confirm:** prompt stays visible as inert **Confirmed / Done**; execute `nextBlocks` render under the prompt.
 
+## UI polish
+
+- Tokens + IBM Plex (Sans/Mono) loaded in `index.html`; CSS modules only (no inline styles).
+- Shared `EmptyState` / `Skeleton` under `shared/ui` for calm empty/loading surfaces.
+- Streaming `text` blocks reserve height with pulse lines so layout does not jump.
+- Desktop shell: fixed `100dvh` app frame; chat scroll + sticky composer; sidebar independent scroll.
+
 ## Audit inspector (`features/audit`)
 
 Every assistant turn keeps the stream `audit` record plus Zod validation failures.

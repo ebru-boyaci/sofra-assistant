@@ -12,10 +12,15 @@ export function TextBlock({ block }: Props) {
   if (empty) {
     return (
       <div
-        className={`${styles.root} ${styles.empty}`}
+        className={`${styles.root} ${styles.streaming}`}
         data-block="text"
-        aria-busy
-      />
+        aria-busy="true"
+        aria-label="Streaming text"
+      >
+        <span className={styles.streamLine} />
+        <span className={`${styles.streamLine} ${styles.streamLineMid}`} />
+        <span className={`${styles.streamLine} ${styles.streamLineShort}`} />
+      </div>
     )
   }
 

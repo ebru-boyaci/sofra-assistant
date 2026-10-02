@@ -1,5 +1,6 @@
 import { formatRelativeDay } from '@/domain/clock'
 import { formatTry } from '@/shared/formatMoney'
+import { EmptyState, Skeleton } from '@/shared/ui'
 import styles from './Shell.module.css'
 import { useShellOrders } from './useShellQueries'
 
@@ -10,13 +11,16 @@ export function OrdersPanel() {
     <section className={styles.panel} aria-label="Orders">
       <h2 className={styles.panelTitle}>Orders</h2>
 
-      {ordersQuery.isPending && <p className={styles.placeholder}>Loading…</p>}
+      {ordersQuery.isPending && <Skeleton lines={3} label="Loading orders" />}
       {ordersQuery.isError && (
         <p className={styles.placeholder}>Could not load orders</p>
       )}
 
       {ordersQuery.isSuccess && ordersQuery.data.length === 0 && (
-        <p className={styles.placeholder}>No orders yet</p>
+        <EmptyState
+          title="No orders yet"
+          hint="Confirmed orders show up here with status and totals."
+        />
       )}
 
       {ordersQuery.isSuccess && ordersQuery.data.length > 0 && (

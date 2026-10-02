@@ -3,6 +3,7 @@ import {
   useChatSession,
   type AssistantTurn,
 } from '@/features/chat'
+import { EmptyState } from '@/shared/ui'
 import { useMemo, useState, type ReactNode } from 'react'
 import styles from './AuditInspector.module.css'
 
@@ -48,9 +49,10 @@ export function AuditInspector() {
       </header>
 
       {assistants.length === 0 ? (
-        <p className={styles.empty}>
-          Send a message to inspect audit and validation failures.
-        </p>
+        <EmptyState
+          title="No turns yet"
+          hint="Send a message to inspect audit and validation failures."
+        />
       ) : (
         <>
           <label className={styles.turnPicker}>

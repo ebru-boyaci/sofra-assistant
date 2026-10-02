@@ -8,4 +8,5 @@
 
 .item {
   min-width: 0;
+  animation: sofra-fade-in 160ms ease both;
 }

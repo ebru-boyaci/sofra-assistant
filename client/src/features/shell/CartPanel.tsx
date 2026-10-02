@@ -1,4 +1,5 @@
 import { formatTry } from '@/shared/formatMoney'
+import { EmptyState, Skeleton } from '@/shared/ui'
 import styles from './Shell.module.css'
 import { useShellCart } from './useShellQueries'
 
@@ -9,7 +10,7 @@ export function CartPanel() {
     <section className={styles.panel} aria-label="Cart">
       <h2 className={styles.panelTitle}>Cart</h2>
 
-      {cartQuery.isPending && <p className={styles.placeholder}>Loading…</p>}
+      {cartQuery.isPending && <Skeleton lines={3} label="Loading cart" />}
       {cartQuery.isError && (
         <p className={styles.placeholder}>Could not load cart</p>
       )}
@@ -21,7 +22,10 @@ export function CartPanel() {
           )}
 
           {cartQuery.data.items.length === 0 ? (
-            <p className={styles.placeholder}>Cart is empty</p>
+            <EmptyState
+              title="Nothing here yet"
+              hint="Items appear after you add them in chat."
+            />
           ) : (
             <ul className={styles.list}>
               {cartQuery.data.items.map((item) => (
