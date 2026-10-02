@@ -1,4 +1,4 @@
-import { CatalogPreview } from '@/features/chat'
+import { ChatPanel } from '@/features/chat'
 import { CartPanel, Header, OrdersPanel } from '@/features/shell'
 import { useCurrentUser } from '@/shared/useCurrentUser'
 import styles from './App.module.css'
@@ -11,10 +11,7 @@ export function App() {
       <Header />
       <div className={styles.body}>
         <main className={styles.chat} aria-label="Chat">
-          <p className={styles.stub}>
-            Current user: <code>{userId}</code>
-          </p>
-          <CatalogPreview />
+          <ChatPanel key={userId} />
         </main>
         <aside className={styles.sidebar} aria-label="Shell">
           <CartPanel />
