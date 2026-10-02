@@ -59,6 +59,18 @@ Built for keyboard-only paths (`sc_04`–`sc_05` / `sc_23`):
 - Streaming `text` blocks reserve height with pulse lines so layout does not jump.
 - Desktop shell: fixed `100dvh` app frame; chat scroll + sticky composer; sidebar independent scroll.
 
+## Scenario walk (Phase 14)
+
+With the mock running (`npm start` from repo root):
+
+```bash
+npm run walk              # all 24 rows + ledger checks
+npm run walk -- sc_05     # one row
+npm run check -- sc_05    # ledger only, after a manual UI pass
+```
+
+`scripts/walk-scenarios.mjs` drives chat/execute/status like a well-behaved client and runs `check-ledger` per row. **UI-only** expects (focus ring, keyboard-only Confirm, wallet flash) still need a quick eye-pass in the browser — especially `sc_23`.
+
 ## Audit inspector (`features/audit`)
 
 Every assistant turn keeps the stream `audit` record plus Zod validation failures.
