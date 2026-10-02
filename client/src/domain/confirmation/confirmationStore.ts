@@ -24,6 +24,7 @@ export type ConfirmationStoreDeps = {
   }) => Promise<ExecuteResponse>
   getStatus: (confirmToken: string) => Promise<ActionStatusResponse>
   isTransportError: (error: unknown) => boolean
+  onDone?: (entry: ConfirmationEntry) => void
 }
 
 function extractErrorCode(body: unknown): string | null {
@@ -175,6 +176,7 @@ export function createConfirmationStore(deps: ConfirmationStoreDeps) {
     if (nextStatus === 'DONE') {
       entry.result = response.body
       entry.message = null
+      deps.onDone?.(entry)
     } else if (nextStatus === 'EXPIRED') {
       entry.message = 'This confirmation expired'
     } else if (nextStatus === 'SUPERSEDED') {
@@ -209,6 +211,7 @@ export function createConfirmationStore(deps: ConfirmationStoreDeps) {
       }
       entry.message = null
       registerFollowUpPrompts(entry.userId, entry.nextBlocks)
+      deps.onDone?.(entry)
     } else if (outcome.state === 'expired') {
       entry.message = 'This confirmation expired'
     } else if (outcome.state === 'superseded' || outcome.state === 'void') {

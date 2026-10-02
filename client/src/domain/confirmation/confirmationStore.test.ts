@@ -27,6 +27,7 @@ function prompt(
 function makeStore(overrides: {
   execute?: ConfirmationStoreDeps['execute']
   getStatus?: ConfirmationStoreDeps['getStatus']
+  onDone?: ConfirmationStoreDeps['onDone']
 } = {}) {
   const execute: ConfirmationStoreDeps['execute'] =
     overrides.execute ??
@@ -50,6 +51,7 @@ function makeStore(overrides: {
     getStatus: getStatusSpy,
     isTransportError: (error) =>
       error instanceof Error && error.name === 'TransportError',
+    onDone: overrides.onDone,
   })
 
   return { store, execute: executeSpy, getStatus: getStatusSpy }
@@ -280,5 +282,16 @@ describe('confirmation store', () => {
     const entry = store.get('ct_live.one')
     expect(entry?.status).toBe('REJECTED')
     expect(entry?.nextBlocks?.[0]?.type).toBe('verification_gate')
+  })
+
+  it('calls onDone after successful execute for shell invalidation', async () => {
+    syncServerClock('2026-08-20T09:00:00.000Z')
+    const onDone = vi.fn()
+    const { store } = makeStore({ onDone })
+    store.register('u_ok', prompt())
+    await store.confirm('ct_live.one')
+    expect(onDone).toHaveBeenCalledTimes(1)
+    expect(onDone.mock.calls[0][0].userId).toBe('u_ok')
+    expect(onDone.mock.calls[0][0].status).toBe('DONE')
   })
 })

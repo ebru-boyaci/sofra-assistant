@@ -3,11 +3,14 @@ import {
   createConfirmationStore,
   type ConfirmationStore,
 } from '@/domain/confirmation'
+import { shellKeys } from '@/features/shell/queryKeys'
 import {
   executeAction,
   getActionStatus,
   TransportError,
 } from '@/infrastructure/api'
+import { useCurrentUser } from '@/shared/useCurrentUser'
+import { useQueryClient } from '@tanstack/react-query'
 import {
   useEffect,
   useMemo,
@@ -15,7 +18,6 @@ import {
   type ReactNode,
 } from 'react'
 import { ConfirmationContext } from './confirmation-context'
-import { useCurrentUser } from '@/shared/useCurrentUser'
 
 type Props = {
   children: ReactNode
@@ -25,6 +27,7 @@ type Props = {
 export function ConfirmationProvider({ children, store: injected }: Props) {
   const { userId } = useCurrentUser()
   const previousUserRef = useRef(userId)
+  const queryClient = useQueryClient()
 
   const store = useMemo(
     () =>
@@ -40,8 +43,21 @@ export function ConfirmationProvider({ children, store: injected }: Props) {
           }),
         getStatus: getActionStatus,
         isTransportError: (error) => error instanceof TransportError,
+        onDone: (entry) => {
+          void Promise.all([
+            queryClient.invalidateQueries({
+              queryKey: shellKeys.user(entry.userId),
+            }),
+            queryClient.invalidateQueries({
+              queryKey: shellKeys.cart(entry.userId),
+            }),
+            queryClient.invalidateQueries({
+              queryKey: shellKeys.orders(entry.userId),
+            }),
+          ])
+        },
       }),
-    [injected],
+    [injected, queryClient],
   )
 
   useEffect(() => {

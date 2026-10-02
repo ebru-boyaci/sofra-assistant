@@ -1,7 +1,5 @@
 import { CatalogPreview } from '@/features/chat'
-import { CartPanel } from '@/features/shell/CartPanel'
-import { Header } from '@/features/shell/Header'
-import { OrdersPanel } from '@/features/shell/OrdersPanel'
+import { CartPanel, Header, OrdersPanel } from '@/features/shell'
 import { useCurrentUser } from '@/shared/useCurrentUser'
 import styles from './App.module.css'
 
