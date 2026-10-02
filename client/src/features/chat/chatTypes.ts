@@ -1,4 +1,9 @@
-import type { TrustedBlock, ValidationFailure } from '@/domain/ui-spec'
+import type { ConfirmationView } from '@/domain/confirmation'
+import type {
+  AuditRecord,
+  TrustedBlock,
+  ValidationFailure,
+} from '@/domain/ui-spec'
 
 export type AssistantTurnStatus =
   | 'loading'
@@ -23,6 +28,8 @@ export type AssistantTurn = {
   status: AssistantTurnStatus
   blocks: TrustedBlock[]
   failures: ValidationFailure[]
+  audit: AuditRecord | null
+  rejectedConfirmation: boolean
   message: string | null
   retryable: boolean
   retryAfterSeconds: number | null
@@ -42,3 +49,18 @@ export type ChatTransportPhase =
   | 'error_final'
   | 'rate_limited'
   | 'unsupported_version'
+
+export type ChatSessionValue = {
+  turns: ChatTurn[]
+  phase: ChatTransportPhase
+  isBusy: boolean
+  rateLimited: boolean
+  rateLimitedUntil: number | null
+  rateLimitedSeconds: number | null
+  conversationId: string | null
+  send: (raw: string) => Promise<void>
+  stop: () => void
+  retryLast: () => Promise<void>
+  onConfirm: (token: string) => void
+  viewFor: (token: string) => ConfirmationView | null
+}

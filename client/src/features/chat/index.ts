@@ -4,6 +4,17 @@ export { BlockList } from './BlockList'
 export type { BlockListProps } from './BlockList'
 export { CatalogPreview } from './CatalogPreview'
 export { ChatPanel } from './ChatPanel'
+export { ChatSessionProvider } from './ChatSessionProvider'
+export { useChatSession } from './useChatSession'
+export { listAssistantTurns } from './chatHelpers'
+export type {
+  AssistantTurn,
+  AssistantTurnStatus,
+  ChatSessionValue,
+  ChatTurn,
+  ChatTransportPhase,
+  UserTurn,
+} from './chatTypes'
 export { TextBlock } from './blocks/TextBlock'
 export { RestaurantCard } from './blocks/RestaurantCard'
 export { MenuItem } from './blocks/MenuItem'

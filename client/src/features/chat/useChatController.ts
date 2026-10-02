@@ -5,17 +5,19 @@ import { useCurrentUser } from '@/shared/useCurrentUser'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   nextTurnId,
+  parseAssemblyAudit,
   parseAssemblyBlocks,
   registerPromptsFromBlocks,
   statusFromAssembly,
 } from './chatHelpers'
 import type {
   AssistantTurn,
+  ChatSessionValue,
   ChatTransportPhase,
   ChatTurn,
 } from './chatTypes'
 
-export function useChatController() {
+export function useChatController(): ChatSessionValue {
   const { userId, conversationId, setConversationId } = useCurrentUser()
   const { register, confirm, viewFor } = useConfirmation()
 
@@ -103,6 +105,8 @@ export function useChatController() {
               status: status === 'streaming' ? 'streaming' : status,
               blocks: parsed.blocks,
               failures: parsed.failures,
+              audit: parseAssemblyAudit(snap),
+              rejectedConfirmation: parsed.rejectedConfirmation,
               requestId: snap.requestId,
               message:
                 snap.error?.message ??
@@ -131,6 +135,8 @@ export function useChatController() {
           status,
           blocks: parsed.blocks,
           failures: parsed.failures,
+          audit: parseAssemblyAudit(final),
+          rejectedConfirmation: parsed.rejectedConfirmation,
           requestId: final.requestId,
           message:
             final.error?.message ??
@@ -251,6 +257,8 @@ export function useChatController() {
           status: 'loading',
           blocks: [],
           failures: [],
+          audit: null,
+          rejectedConfirmation: false,
           message: null,
           retryable: false,
           retryAfterSeconds: null,

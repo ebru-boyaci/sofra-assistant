@@ -2,11 +2,11 @@ import type { ConfirmationPromptBlock } from '@/domain/ui-spec'
 import { Composer } from './Composer'
 import { MessageList } from './MessageList'
 import { statusLabel } from './statusLabel'
-import { useChatController } from './useChatController'
+import { useChatSession } from './useChatSession'
 import styles from './ChatPanel.module.css'
 
 export function ChatPanel() {
-  const chat = useChatController()
+  const chat = useChatSession()
 
   return (
     <section className={styles.root} aria-label="Chat">

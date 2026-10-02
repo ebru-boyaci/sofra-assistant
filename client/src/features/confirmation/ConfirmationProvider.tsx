@@ -3,7 +3,7 @@ import {
   createConfirmationStore,
   type ConfirmationStore,
 } from '@/domain/confirmation'
-import { shellKeys } from '@/features/shell/queryKeys'
+import { shellKeys } from '@/features/shell'
 import {
   executeAction,
   getActionStatus,

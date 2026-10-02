@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { statusFromAssembly } from './chatHelpers'
+import { parseAssemblyAudit, statusFromAssembly } from './chatHelpers'
 import type { AssembledStream } from '@/infrastructure/streaming'
 
 function snap(partial: Partial<AssembledStream>): AssembledStream {
@@ -45,5 +45,33 @@ describe('statusFromAssembly', () => {
     expect(statusFromAssembly(snap({ status: 'streaming' }), true)).toBe(
       'stopped',
     )
+  })
+})
+
+describe('parseAssemblyAudit', () => {
+  it('accepts a valid audit record and rejects garbage', () => {
+    expect(
+      parseAssemblyAudit(
+        snap({
+          audit: {
+            decision: 'needs_confirmation',
+            reason: 'checkout',
+            intent: 'place_order',
+            tools_called: ['get_cart'],
+          },
+        }),
+      ),
+    ).toMatchObject({
+      decision: 'needs_confirmation',
+      intent: 'place_order',
+    })
+
+    expect(
+      parseAssemblyAudit(
+        snap({
+          audit: { decision: 'not_a_real_decision' },
+        }),
+      ),
+    ).toBeNull()
   })
 })

@@ -42,3 +42,11 @@ Defaults we rely on / override:
 | Notes / non-markdown | `order_summary.note` and shell order notes stay plain text (React text nodes), never markdown |
 
 `sc_17` payloads (`html_in_note`, `javascript_link`, `remote_image`) must leave `security_beacons === 0` in the mock ledger.
+
+## Audit inspector (`features/audit`)
+
+Every assistant turn keeps the stream `audit` record plus Zod validation failures.
+
+- **Where it lives:** sidebar inspector only (developers / reviewers).
+- **What it shows:** `decision`, `reason`, `intent`, `tools_called`, `kb_doc_ids`, request id, turn status, and per-block validation failures (including rejected malformed confirmations).
+- **Product UI decision:** we do **not** surface `audit.decision` in the chat transcript. Users already see the outcome through blocks (`verification_gate`, `confirmation_prompt`, plain text). Repeating internal decision labels in chat would double-signal, leak protocol vocabulary, and compete with the generative UI. The inspector remains the place for that taxonomy.

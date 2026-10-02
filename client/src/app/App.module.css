@@ -26,28 +26,10 @@
   overflow: auto;
 }
 
-.stub {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-}
-
 .hint {
   margin: 0;
   color: var(--muted);
   font-size: 0.9rem;
-}
-
-.auditStub {
-  padding: 0.75rem 1rem;
-}
-
-.auditTitle {
-  margin: 0 0 0.5rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--muted);
 }
 
 @media (max-width: 800px) {
