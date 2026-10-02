@@ -1,3 +1,4 @@
+import { formatCountdown, remainingMsUntil } from '@/domain/clock'
 import type { ConfirmationStatus, ConfirmationView } from './types'
 
 export function isExpiredAt(
@@ -48,6 +49,8 @@ export function toConfirmationView(
 ): ConfirmationView {
   const expired = status === 'EXPIRED' || isExpiredAt(expiresAt, serverNowMs)
   const canConfirm = canStartConfirm(status, expiresAt, serverNowMs)
+  const remainingMs =
+    status === 'LIVE' ? remainingMsUntil(expiresAt, serverNowMs) : null
   return {
     status,
     canConfirm,
@@ -57,6 +60,9 @@ export function toConfirmationView(
     message,
     nextBlocks,
     buttonLabel: buttonLabelFor(status),
+    remainingMs,
+    countdownLabel:
+      remainingMs === null ? null : formatCountdown(remainingMs),
   }
 }
 

@@ -28,6 +28,8 @@ export type ConfirmationView = {
   message: string | null
   nextBlocks: TrustedBlock[] | null
   buttonLabel: string
+  remainingMs: number | null
+  countdownLabel: string | null
 }
 
 export type ExecuteOutcomeInput = {

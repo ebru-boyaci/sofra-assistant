@@ -133,15 +133,17 @@ export function createConfirmationStore(deps: ConfirmationStoreDeps) {
   function tick(): void {
     const now = deps.getServerNowMs()
     let changed = false
+    let hasLive = false
     for (const entry of entries.values()) {
       if (entry.status !== 'LIVE') continue
+      hasLive = true
       if (isExpiredAt(entry.prompt.expires_at, now)) {
         entry.status = 'EXPIRED'
         entry.message = 'This confirmation expired'
         changed = true
       }
     }
-    if (changed) notify()
+    if (changed || hasLive) notify()
   }
 
   function clearUser(userId: string): void {

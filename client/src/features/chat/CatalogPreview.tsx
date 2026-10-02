@@ -48,7 +48,16 @@ const PREVIEW_BLOCKS: TrustedBlock[] = [
     total_try: 390,
     status: 'received',
     eta_min: 40,
+    date: '2026-08-20',
     note: 'Extra napkins please',
+  },
+  {
+    type: 'order_summary',
+    order_id: 'ord_old',
+    restaurant: 'Ege Balık',
+    total_try: 520,
+    status: 'delivered',
+    date: '2026-07-10',
   },
   {
     type: 'confirmation_prompt',

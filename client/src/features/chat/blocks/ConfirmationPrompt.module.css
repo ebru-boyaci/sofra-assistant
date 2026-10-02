@@ -67,6 +67,19 @@
   overflow-wrap: anywhere;
 }
 
+.countdown {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.countdownValue {
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  color: var(--text);
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

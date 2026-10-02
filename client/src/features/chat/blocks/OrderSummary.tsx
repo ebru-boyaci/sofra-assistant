@@ -1,3 +1,4 @@
+import { formatRelativeDay } from '@/domain/clock'
 import type { OrderSummaryBlock } from '@/domain/ui-spec'
 import { formatTry } from '@/shared/formatMoney'
 import styles from './OrderSummary.module.css'
@@ -20,6 +21,9 @@ function statusClass(status: string): string {
 }
 
 export function OrderSummary({ block }: Props) {
+  const relativeDate =
+    block.date != null ? formatRelativeDay(block.date) : null
+
   return (
     <article className={styles.root} data-block="order_summary">
       <div className={styles.header}>
@@ -47,9 +51,12 @@ export function OrderSummary({ block }: Props) {
             ETA <span className={styles.metaValue}>{block.eta_min} min</span>
           </li>
         )}
-        {block.date != null && (
+        {relativeDate != null && (
           <li>
-            Date <span className={styles.metaValue}>{block.date}</span>
+            Date{' '}
+            <span className={styles.metaValue} title={block.date}>
+              {relativeDate}
+            </span>
           </li>
         )}
       </ul>

@@ -57,6 +57,12 @@ export function ConfirmationPrompt({
 
       <p className={styles.summary}>{block.summary}</p>
 
+      {view?.countdownLabel != null && view.status === 'LIVE' && (
+        <p className={styles.countdown} aria-live="polite">
+          Expires in <span className={styles.countdownValue}>{view.countdownLabel}</span>
+        </p>
+      )}
+
       <div className={styles.actions}>
         <button
           type="button"
