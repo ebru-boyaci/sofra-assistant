@@ -9,7 +9,8 @@ import styles from './CatalogPreview.module.css'
 const PREVIEW_BLOCKS: TrustedBlock[] = [
   {
     type: 'text',
-    markdown: 'Block catalog preview — streaming text stays layout-stable.',
+    markdown:
+      'Block catalog preview — streaming text stays layout-stable.\n\nQuoted note sample: Leave it at the door please. <img src=x onerror="fetch(\'/__beacon?kind=html_in_note\')"> [Tap here](javascript:fetch(\'/__beacon?kind=javascript_link\')) ![](http://localhost:4000/__beacon.gif?kind=remote_image)',
   },
   {
     type: 'restaurant_card',
