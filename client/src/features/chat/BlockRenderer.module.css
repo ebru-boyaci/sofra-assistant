@@ -2,6 +2,14 @@
   min-width: 0;
 }
 
+.followUp {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--border-strong);
+}
+
 .skip {
   display: none;
 }

@@ -11,11 +11,16 @@ export function ErrorBlockView({ block }: Props) {
       className={styles.root}
       data-block="error"
       role="alert"
-      aria-label="Error"
+      aria-label={`Error: ${block.code}`}
     >
       <div className={styles.header}>
-        <p className={styles.kicker}>Error</p>
-        <p className={styles.code}>{block.code}</p>
+        <span className={styles.icon} aria-hidden="true">
+          !
+        </span>
+        <div className={styles.titles}>
+          <p className={styles.kicker}>Error</p>
+          <p className={styles.code}>{block.code}</p>
+        </div>
       </div>
       <p className={styles.message}>{block.message}</p>
     </div>

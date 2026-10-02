@@ -43,12 +43,17 @@ export function Composer({
             : 'Message Sofra…'
         }
         disabled={disabled || rateLimited}
+        aria-describedby="chat-composer-hint"
         onKeyDown={(event) => {
+          // Enter sends the message only — never activates Confirm.
           if (event.key !== 'Enter' || event.shiftKey) return
           event.preventDefault()
           event.currentTarget.form?.requestSubmit()
         }}
       />
+      <p id="chat-composer-hint" className={styles.hint}>
+        Enter sends a message — it never confirms. Shift+Enter for a new line.
+      </p>
       <div className={styles.actions}>
         {busy ? (
           <button type="button" className={styles.stop} onClick={onStop}>

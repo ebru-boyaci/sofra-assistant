@@ -21,6 +21,24 @@ export type BlockRendererProps = {
   confirmView?: ConfirmationView | null
   confirmDisabled?: boolean
   suggestedDisabled?: boolean
+  getConfirmView?: (token: string) => ConfirmationView | null
+}
+
+function followUpKey(block: TrustedBlock, index: number): string {
+  switch (block.type) {
+    case 'restaurant_card':
+      return `follow:${index}:restaurant_card:${block.restaurant_id}`
+    case 'menu_item':
+      return `follow:${index}:menu_item:${block.item_id}`
+    case 'order_summary':
+      return `follow:${index}:order_summary:${block.order_id}`
+    case 'confirmation_prompt':
+      return `follow:${index}:confirmation_prompt:${block.confirm_token}`
+    case 'error':
+      return `follow:${index}:error:${block.code}`
+    default:
+      return `follow:${index}:${block.type}`
+  }
 }
 
 export function BlockRenderer({
@@ -30,6 +48,7 @@ export function BlockRenderer({
   confirmView = null,
   confirmDisabled,
   suggestedDisabled,
+  getConfirmView,
 }: BlockRendererProps) {
   switch (block.type) {
     case 'text':
@@ -62,7 +81,8 @@ export function BlockRenderer({
           <OrderSummary block={block} />
         </div>
       )
-    case 'confirmation_prompt':
+    case 'confirmation_prompt': {
+      const followUps = confirmView?.nextBlocks ?? null
       return (
         <div className={styles.slot}>
           <ConfirmationPrompt
@@ -71,8 +91,33 @@ export function BlockRenderer({
             view={confirmView}
             disabled={confirmDisabled}
           />
+          {followUps != null && followUps.length > 0 ? (
+            <div
+              className={styles.followUp}
+              role="region"
+              aria-label="Confirmation result"
+            >
+              {followUps.map((followUp, index) => (
+                <BlockRenderer
+                  key={followUpKey(followUp, index)}
+                  block={followUp}
+                  onConfirm={onConfirm}
+                  onSuggestedAction={onSuggestedAction}
+                  confirmView={
+                    followUp.type === 'confirmation_prompt'
+                      ? (getConfirmView?.(followUp.confirm_token) ?? null)
+                      : null
+                  }
+                  confirmDisabled={confirmDisabled}
+                  suggestedDisabled={suggestedDisabled}
+                  getConfirmView={getConfirmView}
+                />
+              ))}
+            </div>
+          ) : null}
         </div>
       )
+    }
     case 'verification_gate':
       return (
         <div className={styles.slot}>

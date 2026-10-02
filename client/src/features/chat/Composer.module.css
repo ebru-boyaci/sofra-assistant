@@ -29,6 +29,12 @@
   color: var(--text);
 }
 
+.hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;

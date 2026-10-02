@@ -1,5 +1,8 @@
 import type { ConfirmationPromptBlock } from '@/domain/ui-spec'
-import type { ConfirmationView } from '@/domain/confirmation'
+import type {
+  ConfirmationStatus,
+  ConfirmationView,
+} from '@/domain/confirmation'
 import styles from './ConfirmationPrompt.module.css'
 
 export type ConfirmationPromptProps = {
@@ -17,6 +20,19 @@ const ACTION_LABEL: Record<ConfirmationPromptBlock['action'], string> = {
   add_tip: 'Add tip',
 }
 
+const STATUS_COPY: Record<
+  ConfirmationStatus,
+  { kicker: string; mark: string; tone: string }
+> = {
+  LIVE: { kicker: 'Confirmation required', mark: '!', tone: styles.live },
+  CONFIRMING: { kicker: 'Confirming', mark: '…', tone: styles.busy },
+  RECONCILING: { kicker: 'Checking status', mark: '…', tone: styles.busy },
+  DONE: { kicker: 'Confirmed', mark: '✓', tone: styles.done },
+  EXPIRED: { kicker: 'Expired', mark: '×', tone: styles.expired },
+  SUPERSEDED: { kicker: 'Replaced', mark: '↻', tone: styles.replaced },
+  REJECTED: { kicker: 'Unavailable', mark: '×', tone: styles.rejected },
+}
+
 export function ConfirmationPrompt({
   block,
   onConfirm,
@@ -26,6 +42,8 @@ export function ConfirmationPrompt({
   expired = false,
 }: ConfirmationPromptProps) {
   const destructive = block.action === 'cancel_order'
+  const status: ConfirmationStatus = view?.status ?? 'LIVE'
+  const copy = STATUS_COPY[status]
   const isBusy = view?.busy ?? busy
   const isExpired = view?.expired ?? expired
   const isSuperseded = view?.superseded ?? false
@@ -40,17 +58,17 @@ export function ConfirmationPrompt({
 
   return (
     <section
-      className={`${styles.root}${destructive ? ` ${styles.destructive}` : ''}${isSuperseded ? ` ${styles.replaced}` : ''}`}
+      className={`${styles.root} ${copy.tone}${destructive ? ` ${styles.destructive}` : ''}`}
       data-block="confirmation_prompt"
-      data-status={view?.status ?? 'LIVE'}
-      aria-label="Confirmation required"
+      data-status={status}
+      aria-label={`${copy.kicker}: ${ACTION_LABEL[block.action]}`}
     >
       <div className={styles.header}>
         <p className={styles.kicker}>
           <span className={styles.kickerMark} aria-hidden="true">
-            ✓
+            {copy.mark}
           </span>
-          {isSuperseded ? 'Replaced confirmation' : 'Confirmation required'}
+          {copy.kicker}
         </p>
         <p className={styles.action}>{ACTION_LABEL[block.action]}</p>
       </div>
@@ -59,7 +77,8 @@ export function ConfirmationPrompt({
 
       {view?.countdownLabel != null && view.status === 'LIVE' && (
         <p className={styles.countdown} aria-live="polite">
-          Expires in <span className={styles.countdownValue}>{view.countdownLabel}</span>
+          Expires in{' '}
+          <span className={styles.countdownValue}>{view.countdownLabel}</span>
         </p>
       )}
 
@@ -68,19 +87,20 @@ export function ConfirmationPrompt({
           type="button"
           className={styles.confirm}
           disabled={inactive}
-          aria-disabled={inactive}
           onClick={() => onConfirm?.(block)}
         >
           {label}
         </button>
       </div>
 
-      {(isExpired || isSuperseded || view?.message) && (
+      {(isExpired || isSuperseded || view?.message || status === 'DONE') && (
         <p className={styles.hint} role="status">
           {view?.message ??
-            (isSuperseded
-              ? 'Replaced by a newer confirmation.'
-              : 'This confirmation expired. Ask again for a fresh one.')}
+            (status === 'DONE'
+              ? 'Confirmed — this control is inactive.'
+              : isSuperseded
+                ? 'Replaced by a newer confirmation.'
+                : 'This confirmation expired. Ask again for a fresh one.')}
         </p>
       )}
     </section>

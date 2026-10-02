@@ -4,6 +4,7 @@
   padding: var(--space-4);
   background: var(--blocked-soft);
   border: 2px dashed var(--blocked);
+  border-left: 6px solid var(--blocked);
   border-radius: var(--radius);
 }
 

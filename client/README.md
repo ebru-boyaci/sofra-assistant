@@ -43,6 +43,15 @@ Defaults we rely on / override:
 
 `sc_17` payloads (`html_in_note`, `javascript_link`, `remote_image`) must leave `security_beacons === 0` in the mock ledger.
 
+## Accessibility
+
+Built for keyboard-only paths (`sc_04`–`sc_05` / `sc_23`):
+
+- **Focus:** `:focus-visible` ring (3px) on all interactive controls; skip link jumps to the composer.
+- **Confirm:** real `<button type="button">` in tab order; **never auto-focused** when a prompt appears. Composer Enter submits a message only — it does not confirm.
+- **States without colour alone:** gate / confirm / done / error / expired use text labels, icons/marks, and border style (solid / dashed / dotted), not hue alone.
+- **After confirm:** prompt stays visible as inert **Confirmed / Done**; execute `nextBlocks` render under the prompt.
+
 ## Audit inspector (`features/audit`)
 
 Every assistant turn keeps the stream `audit` record plus Zod validation failures.

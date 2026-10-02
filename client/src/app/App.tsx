@@ -9,6 +9,9 @@ export function App() {
 
   return (
     <div className={styles.root}>
+      <a href="#chat-composer" className="skipLink">
+        Skip to message composer
+      </a>
       <Header />
       <div className={styles.body}>
         <ChatSessionProvider key={userId}>
@@ -25,3 +28,4 @@ export function App() {
     </div>
   )
 }
+

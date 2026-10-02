@@ -57,6 +57,7 @@ export function BlockList({
             }
             confirmDisabled={confirmDisabled}
             suggestedDisabled={suggestedDisabled}
+            getConfirmView={getConfirmView}
           />
         </li>
       ))}

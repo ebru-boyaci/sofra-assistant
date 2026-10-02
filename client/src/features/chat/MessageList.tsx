@@ -1,7 +1,7 @@
 import type { ConfirmationView } from '@/domain/confirmation'
 import type { ConfirmationPromptBlock } from '@/domain/ui-spec'
 import { BlockList } from './BlockList'
-import type { ChatTurn } from './chatTypes'
+import type { AssistantTurnStatus, ChatTurn } from './chatTypes'
 import { statusLabel } from './statusLabel'
 import styles from './MessageList.module.css'
 
@@ -11,6 +11,21 @@ type Props = {
   onConfirm: (block: ConfirmationPromptBlock) => void
   onSuggestedAction: (text: string) => void
   onRetry?: () => void
+}
+
+function statusTone(status: AssistantTurnStatus): string {
+  switch (status) {
+    case 'error_retryable':
+    case 'error_final':
+    case 'unsupported_version':
+      return styles.statusError
+    case 'rate_limited':
+    case 'incomplete':
+    case 'stopped':
+      return styles.statusWarn
+    default:
+      return styles.statusInfo
+  }
 }
 
 export function MessageList({
@@ -47,7 +62,13 @@ export function MessageList({
           ) : (
             <div className={styles.assistantBody}>
               {(turn.status === 'loading' || turn.status === 'streaming') && (
-                <p className={styles.status} aria-live="polite">
+                <p
+                  className={`${styles.status} ${statusTone(turn.status)}`}
+                  aria-live="polite"
+                >
+                  <span className={styles.statusMark} aria-hidden="true">
+                    ·
+                  </span>
                   {statusLabel(turn.status)}
                 </p>
               )}
@@ -64,11 +85,27 @@ export function MessageList({
                 />
               )}
 
-              {turn.message && turn.status !== 'streaming' && turn.status !== 'loading' && (
-                <p className={styles.message} role="status">
-                  {turn.message}
-                </p>
-              )}
+              {turn.message &&
+                turn.status !== 'streaming' &&
+                turn.status !== 'loading' && (
+                  <p
+                    className={`${styles.message} ${statusTone(turn.status)}`}
+                    role="status"
+                    data-turn-status={turn.status}
+                  >
+                    <span className={styles.statusMark} aria-hidden="true">
+                      {turn.status.startsWith('error') ||
+                      turn.status === 'unsupported_version'
+                        ? '!'
+                        : turn.status === 'rate_limited' ||
+                            turn.status === 'incomplete' ||
+                            turn.status === 'stopped'
+                          ? '×'
+                          : 'i'}
+                    </span>
+                    {turn.message}
+                  </p>
+                )}
 
               {(turn.status === 'error_retryable' ||
                 turn.status === 'incomplete' ||
