@@ -4,12 +4,48 @@
   list-style: none;
   display: grid;
   gap: var(--space-5);
-  max-width: var(--chat-max);
+  width: 100%;
 }
 
 .emptyWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: var(--space-7) var(--space-6);
-  max-width: var(--chat-max);
+}
+
+.empty {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.bubbles {
+  width: 7.5rem;
+  height: auto;
+}
+
+.welcome {
+  margin: var(--space-4) 0 0;
+}
+
+.welcomeHint {
+  margin: var(--space-2) 0 0;
+  color: var(--muted);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-meta);
+  line-height: 1.45;
+}
+
+.starters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.45rem;
+  margin-top: var(--space-5);
+  width: 100%;
 }
 
 .item {
@@ -27,16 +63,27 @@
 .role {
   margin-bottom: var(--space-2);
   font-size: var(--text-meta);
-  font-weight: 600;
+  font-weight: var(--weight-meta);
   color: var(--muted);
 }
 
+.user {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
 .user .userText {
-  margin: 0;
+  margin: 0 0 0 auto;
+  max-width: min(22rem, 78%);
   padding: var(--space-3) var(--space-4);
-  background: var(--accent-soft);
-  border: 1px solid color-mix(in srgb, var(--accent) 16%, var(--border));
-  border-radius: var(--radius-lg);
+  background: var(--bubble);
+  border: var(--border-width) solid color-mix(in srgb, var(--ink) 18%, var(--bubble));
+  border-radius: var(--radius) var(--radius) 0.35rem var(--radius);
+  color: var(--chat-color);
+  font-size: var(--chat-size);
+  font-weight: var(--chat-weight);
+  line-height: var(--chat-lh);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -44,6 +91,26 @@
 .assistantBody {
   display: grid;
   gap: var(--space-3);
+  width: min(32rem, 100%);
+  justify-self: start;
+  color: var(--chat-color);
+  font-size: var(--chat-size);
+  font-weight: var(--chat-weight);
+  line-height: var(--chat-lh);
+}
+
+.thinking {
+  margin: 0;
+  width: fit-content;
+  max-width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--chat-color);
+  font-size: var(--chat-size);
+  font-weight: var(--chat-weight);
+  line-height: var(--chat-lh);
 }
 
 .status,
@@ -56,6 +123,9 @@
   border-left: 3px solid var(--border-strong);
   background: var(--surface);
   border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: var(--chat-size);
+  font-weight: var(--chat-weight);
+  line-height: var(--chat-lh);
 }
 
 .statusMark {
@@ -65,10 +135,10 @@
   width: 1.1rem;
   height: 1.1rem;
   margin-top: 0.1rem;
-  border: 1.5px solid currentColor;
+  border: var(--border-width) solid currentColor;
   border-radius: 2px;
   font-size: var(--text-meta);
-  font-weight: 800;
+  font-weight: var(--weight-title);
   line-height: 1;
 }
 

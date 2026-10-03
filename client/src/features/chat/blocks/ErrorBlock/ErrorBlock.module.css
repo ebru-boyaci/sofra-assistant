@@ -3,14 +3,14 @@
   gap: var(--space-2);
   padding: var(--space-4) var(--space-5);
   background: var(--danger-soft);
-  border: 1px solid var(--danger);
+  border: var(--border-width) solid var(--danger);
   border-left-width: 4px;
   border-radius: var(--radius);
 }
 
 .header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
 }
 
@@ -18,13 +18,12 @@
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  width: 1.75rem;
-  height: 1.75rem;
-  border: 2px solid var(--danger);
+  width: 2.25rem;
+  height: 2.25rem;
   border-radius: 50%;
-  font-weight: 800;
-  color: var(--danger);
-  background: var(--surface);
+  font-weight: var(--weight-title);
+  color: #fff;
+  background: var(--danger);
   line-height: 1;
 }
 
@@ -36,19 +35,25 @@
 
 .kicker {
   margin: 0;
-  font-size: var(--text-meta);
-  font-weight: 700;
+  font-size: var(--chat-meta-size);
+  font-weight: var(--weight-emphasis);
+  line-height: var(--chat-lh);
   color: var(--danger);
 }
 
 .code {
   margin: 0;
-  font-size: var(--text-meta);
+  font-size: var(--chat-meta-size);
+  line-height: var(--chat-lh);
   font-family: var(--font-mono);
-  color: var(--muted);
+  color: var(--chat-meta-color);
 }
 
 .message {
   margin: 0;
+  font-size: var(--chat-size);
+  font-weight: var(--chat-weight);
+  line-height: var(--chat-lh);
+  color: var(--chat-color);
   overflow-wrap: anywhere;
 }

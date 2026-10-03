@@ -6,10 +6,10 @@
   gap: 0.35rem;
   border-radius: var(--radius);
   padding: 0.55rem 1rem;
-  font-weight: 600;
+  font-weight: var(--weight-meta);
   line-height: 1.2;
   cursor: pointer;
-  border: 1px solid transparent;
+  border: var(--border-width) solid transparent;
 }
 
 .root:disabled {
@@ -18,14 +18,17 @@
 }
 
 .primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-fg);
+  background: var(--text);
+  border-color: var(--text);
+  color: #fff;
+  border-radius: var(--radius-pill);
+  padding: 0.85rem 1.25rem;
+  font-weight: var(--weight-emphasis);
 }
 
 .primary:hover:not(:disabled) {
-  background: var(--accent-hover);
-  border-color: var(--accent-hover);
+  background: color-mix(in srgb, var(--text) 88%, white);
+  border-color: color-mix(in srgb, var(--text) 88%, white);
 }
 
 .secondary {
@@ -37,16 +40,6 @@
 .secondary:hover:not(:disabled) {
   background: var(--surface-muted);
   border-color: var(--border-strong);
-}
-
-.ghost {
-  background: transparent;
-  border-color: transparent;
-  color: var(--text);
-}
-
-.ghost:hover:not(:disabled) {
-  background: rgb(28 28 26 / 0.05);
 }
 
 .danger {

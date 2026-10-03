@@ -3,14 +3,14 @@
   gap: var(--space-3);
   padding: var(--space-5);
   background: var(--blocked-soft);
-  border: 1px dashed var(--blocked);
+  border: var(--border-width) dashed var(--blocked);
   border-left: 4px solid var(--blocked);
   border-radius: var(--radius);
 }
 
 .header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: var(--space-3);
 }
 
@@ -18,13 +18,12 @@
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border: 2px solid var(--blocked);
-  border-radius: 2px;
-  font-weight: 800;
-  color: var(--blocked);
-  background: var(--surface);
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  font-weight: var(--weight-title);
+  color: #fff;
+  background: var(--blocked);
 }
 
 .titles {
@@ -35,21 +34,27 @@
 
 .kicker {
   margin: 0;
-  font-size: var(--text-meta);
-  font-weight: 700;
+  font-size: var(--chat-meta-size);
+  font-weight: var(--weight-emphasis);
+  line-height: var(--chat-lh);
   color: var(--blocked);
 }
 
 .requirement {
   margin: 0;
-  font-size: var(--text-meta);
-  font-weight: 650;
-  color: var(--muted);
+  font-size: var(--chat-meta-size);
+  font-weight: var(--weight-emphasis);
+  line-height: var(--chat-lh);
+  color: var(--chat-meta-color);
   font-family: var(--font-mono);
 }
 
 .reason {
   margin: 0;
+  font-size: var(--chat-size);
+  font-weight: var(--chat-weight);
+  line-height: var(--chat-lh);
+  color: var(--chat-color);
   overflow-wrap: anywhere;
 }
 
@@ -61,11 +66,11 @@
   padding: var(--space-2) var(--space-3);
   border-left: 3px solid var(--blocked);
   background: var(--surface);
-  font-weight: 550;
+  font-weight: var(--weight-meta);
 }
 
 .ctaLabel {
   font-size: var(--text-meta);
-  font-weight: 700;
+  font-weight: var(--weight-emphasis);
   color: var(--muted);
 }

@@ -3,7 +3,7 @@
   gap: var(--space-3);
   padding: var(--space-5);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--border-width) solid var(--border);
   border-radius: var(--radius-lg);
 }
 
@@ -17,7 +17,10 @@
 
 .title {
   margin: 0;
-  font-weight: 650;
+  font-size: var(--chat-size);
+  font-weight: var(--chat-title-weight);
+  line-height: var(--chat-lh);
+  color: var(--chat-color);
 }
 
 .meta {
@@ -27,12 +30,13 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: var(--text-meta);
-  color: var(--muted);
+  font-size: var(--chat-meta-size);
+  line-height: var(--chat-lh);
+  color: var(--chat-meta-color);
 }
 
 .metaValue {
-  color: var(--text);
+  color: var(--chat-color);
   font-variant-numeric: tabular-nums;
 }
 
@@ -41,6 +45,10 @@
   padding: var(--space-2) var(--space-3);
   border-left: 3px solid var(--border-strong);
   background: var(--surface-muted);
+  font-size: var(--chat-size);
+  font-weight: var(--chat-weight);
+  line-height: var(--chat-lh);
+  color: var(--chat-color);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -48,7 +56,7 @@
 .noteLabel {
   display: block;
   margin-bottom: var(--space-1);
-  font-size: var(--text-meta);
-  font-weight: 600;
-  color: var(--muted);
+  font-size: var(--chat-meta-size);
+  font-weight: var(--chat-title-weight);
+  color: var(--chat-meta-color);
 }

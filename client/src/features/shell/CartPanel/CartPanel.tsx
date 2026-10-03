@@ -1,73 +1,97 @@
+import { useChatSession } from '@/features/chat'
 import { formatTry } from '@/shared/formatMoney'
-import { EmptyState, Skeleton } from '@/shared/ui'
+import { Button, ChevronRightIcon, EmptyState, InfoIcon, Skeleton } from '@/shared/ui'
 import styles from '../Shell.module.css'
 import { useShellCart } from '../useShellQueries'
 
 export function CartPanel() {
   const cartQuery = useShellCart()
+  const chat = useChatSession()
+  const cart = cartQuery.isSuccess ? cartQuery.data : null
+  const canOrder = cart != null && cart.items.length > 0 && cart.quote != null
 
   return (
     <section className={styles.panel} aria-label="Cart">
-      <h2 className={styles.panelTitle}>Cart</h2>
+      <div className={styles.panelHead}>
+        <h2 className={styles.panelTitle}>Cart</h2>
+        {cart?.restaurant_name != null && (
+          <p className={`${styles.orderRestaurant} ${styles.restaurant}`}>
+            {cart.restaurant_name}
+          </p>
+        )}
+      </div>
 
       {cartQuery.isPending && <Skeleton lines={3} label="Loading cart" />}
       {cartQuery.isError && (
         <p className={styles.placeholder}>Could not load cart</p>
       )}
 
-      {cartQuery.isSuccess && (
+      {cart != null && (
         <>
-          {cartQuery.data.restaurant_name != null && (
-            <p className={styles.restaurant}>{cartQuery.data.restaurant_name}</p>
-          )}
-
-          {cartQuery.data.items.length === 0 ? (
+          {cart.items.length === 0 ? (
             <EmptyState title="Empty" hint="Add items from chat." />
           ) : (
             <ul className={styles.list}>
-              {cartQuery.data.items.map((item) => (
+              {cart.items.map((item) => (
                 <li key={item.item_id} className={styles.listRow}>
-                  <span className={styles.qty}>{item.qty}×</span>
                   <span className={styles.itemName}>{item.name}</span>
-                  <span className={styles.price}>{formatTry(item.price_try)}</span>
+                  <span className={styles.itemPrice}>{formatTry(item.price_try)}</span>
                 </li>
               ))}
             </ul>
           )}
 
-          {cartQuery.data.quote != null && (
+          {cart.quote != null && (
             <div className={styles.totals}>
               <div className={styles.totalRow}>
                 <span>Subtotal</span>
-                <span className={styles.price}>
-                  {formatTry(cartQuery.data.quote.subtotal_try)}
+                <span className={styles.amount}>
+                  {formatTry(cart.quote.subtotal_try)}
                 </span>
               </div>
               <div className={styles.totalRow}>
-                <span>Delivery</span>
-                <span className={styles.price}>
-                  {cartQuery.data.quote.delivery_fee_try === 0
+                <span className={styles.deliveryLabel}>
+                  Delivery
+                  <span className={styles.info} title="Delivery fee from the server">
+                    <InfoIcon width="0.95rem" height="0.95rem" aria-hidden="true" />
+                  </span>
+                </span>
+                <span className={styles.amount}>
+                  {cart.quote.delivery_fee_try === 0
                     ? 'Free'
-                    : formatTry(cartQuery.data.quote.delivery_fee_try)}
+                    : formatTry(cart.quote.delivery_fee_try)}
                 </span>
               </div>
               <div className={`${styles.totalRow} ${styles.totalStrong}`}>
                 <span>Total</span>
-                <span className={styles.price}>
-                  {formatTry(cartQuery.data.quote.total_try)}
+                <span className={styles.amount}>
+                  {formatTry(cart.quote.total_try)}
                 </span>
               </div>
-              {!cartQuery.data.quote.meets_minimum && (
+              {!cart.quote.meets_minimum && (
                 <p className={styles.warning} role="status">
-                  Below minimum ({formatTry(cartQuery.data.quote.min_order_try)})
+                  Below minimum ({formatTry(cart.quote.min_order_try)})
                 </p>
               )}
-              {!cartQuery.data.quote.sufficient_funds && (
+              {!cart.quote.sufficient_funds && (
                 <p className={styles.warning} role="status">
                   Insufficient wallet funds
                 </p>
               )}
             </div>
+          )}
+
+          {canOrder && (
+            <Button
+              className={styles.placeOrder}
+              disabled={chat.isBusy}
+              onClick={() => {
+                void chat.send('Order what is in my cart')
+              }}
+            >
+              Place order
+              <ChevronRightIcon width="1rem" height="1rem" />
+            </Button>
           )}
         </>
       )}

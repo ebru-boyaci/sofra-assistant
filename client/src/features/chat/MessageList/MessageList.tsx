@@ -1,11 +1,20 @@
 import type { ConfirmationView } from '@/domain/confirmation'
 import type { ConfirmationPromptBlock } from '@/domain/ui-spec'
-import { Button, EmptyState } from '@/shared/ui'
+import { Button, Chip } from '@/shared/ui'
 import { useEffect, useRef } from 'react'
+import bubbles from '../assets/chat-bubbles.png'
 import { BlockList } from '../BlockList'
 import type { AssistantTurnStatus, ChatTurn } from '../chatTypes'
 import { statusLabel } from '../statusLabel'
 import styles from './MessageList.module.css'
+
+const STARTER_PROMPTS = [
+  { emoji: '🛒', text: 'What is in my cart?' },
+  { emoji: '🍕', text: 'Is there a pizza place near me?' },
+  { emoji: '🍔', text: 'Order 2 cheeseburgers from Burger Stop' },
+  { emoji: '🧾', text: 'Show my recent orders' },
+  { emoji: '🛵', text: 'How much is the delivery fee?' },
+] as const
 
 type Props = {
   turns: readonly ChatTurn[]
@@ -13,6 +22,24 @@ type Props = {
   onConfirm: (block: ConfirmationPromptBlock) => void
   onSuggestedAction: (text: string) => void
   onRetry?: () => void
+}
+
+function confirmLayoutKey(
+  turns: readonly ChatTurn[],
+  getConfirmView: (token: string) => ConfirmationView | null,
+): string {
+  const parts: string[] = []
+  for (const turn of turns) {
+    if (turn.role !== 'assistant') continue
+    for (const block of turn.blocks) {
+      if (block.type !== 'confirmation_prompt') continue
+      const view = getConfirmView(block.confirm_token)
+      parts.push(
+        `${block.confirm_token}:${view?.status ?? 'none'}:${view?.nextBlocks?.length ?? 0}`,
+      )
+    }
+  }
+  return parts.join('|')
 }
 
 function statusTone(status: AssistantTurnStatus): string {
@@ -38,18 +65,37 @@ export function MessageList({
   onRetry,
 }: Props) {
   const endRef = useRef<HTMLDivElement>(null)
+  const confirmLayout = confirmLayoutKey(turns, getConfirmView)
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' })
-  }, [turns])
+  }, [turns, confirmLayout])
 
   if (turns.length === 0) {
     return (
       <div className={styles.emptyWrap}>
-        <EmptyState
-          title="Sofra assistant"
-          hint="Ask about restaurants, your cart, or place an order."
-        />
+        <div className={styles.empty}>
+          <img
+            className={styles.bubbles}
+            src={bubbles}
+            alt=""
+          />
+          <h2 className={styles.welcome}>Welcome to Sofra</h2>
+          <p className={styles.welcomeHint}>
+            Ask about restaurants, your cart, or place an order.
+          </p>
+          <div className={styles.starters} role="group" aria-label="Example messages">
+            {STARTER_PROMPTS.map((prompt) => (
+              <Chip
+                key={prompt.text}
+                onClick={() => onSuggestedAction(prompt.text)}
+              >
+                <span aria-hidden="true">{prompt.emoji}</span>
+                {prompt.text}
+              </Chip>
+            ))}
+          </div>
+        </div>
       </div>
     )
   }
@@ -71,13 +117,7 @@ export function MessageList({
             <div className={styles.assistantBody}>
               {(turn.status === 'loading' || turn.status === 'streaming') &&
                 turn.blocks.length === 0 && (
-                  <p
-                    className={`${styles.status} ${statusTone(turn.status)}`}
-                    aria-live="polite"
-                  >
-                    <span className={styles.statusMark} aria-hidden="true">
-                      ·
-                    </span>
+                  <p className={styles.thinking} aria-live="polite">
                     {statusLabel(turn.status)}
                   </p>
                 )}

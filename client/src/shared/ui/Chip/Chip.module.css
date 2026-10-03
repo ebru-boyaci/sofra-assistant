@@ -1,18 +1,24 @@
 .root {
   appearance: none;
-  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: var(--border-width) solid var(--border);
   background: var(--surface);
-  color: var(--text);
+  color: var(--muted);
   border-radius: var(--radius-pill);
-  padding: 0.45rem 0.9rem;
-  font-weight: 500;
+  padding: 0.5rem 1.15rem;
+  font-size: var(--chat-size);
+  font-weight: var(--chat-title-weight);
+  line-height: var(--chat-lh);
   cursor: pointer;
 }
 
-.root:hover:not(:disabled) {
-  border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
-  background: var(--accent-soft);
-  color: var(--accent-hover);
+.root:hover:not(:disabled),
+.root:focus-visible {
+  border-color: var(--ink);
+  background: color-mix(in srgb, var(--ink) 6%, var(--surface));
+  color: var(--text);
 }
 
 .root:disabled {

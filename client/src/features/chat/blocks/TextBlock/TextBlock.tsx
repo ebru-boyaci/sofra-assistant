@@ -15,11 +15,9 @@ export function TextBlock({ block }: Props) {
         className={`${styles.root} ${styles.streaming}`}
         data-block="text"
         aria-busy="true"
-        aria-label="Streaming text"
+        aria-label="Thinking"
       >
-        <span className={styles.streamLine} />
-        <span className={`${styles.streamLine} ${styles.streamLineMid}`} />
-        <span className={`${styles.streamLine} ${styles.streamLineShort}`} />
+        <p className={styles.thinking}>Thinking…</p>
       </div>
     )
   }

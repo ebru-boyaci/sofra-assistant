@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { MOCK_USERS, type UserId } from '@/shared/users'
+import { ChevronDownIcon, UserIcon } from '@/shared/ui'
+import pill from '../HeaderPill.module.css'
 import styles from './UserSwitcher.module.css'
 
 type Props = {
@@ -31,22 +33,21 @@ export function UserSwitcher({ value, onChange }: Props) {
 
   return (
     <div className={styles.root} ref={rootRef}>
-      <span className={styles.label} id={`${listId}-label`}>
-        Persona
-      </span>
       <button
         type="button"
-        className={styles.trigger}
+        className={pill.pill}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
-        aria-labelledby={`${listId}-label`}
+        aria-label={`Persona: ${current.name}, ${current.role}`}
         onClick={() => setOpen((v) => !v)}
       >
-        <span className={styles.triggerText}>{current.label}</span>
-        <span className={styles.chevron} aria-hidden="true">
-          ▾
+        <UserIcon className={pill.icon} />
+        <span className={pill.stack}>
+          <span className={pill.primary}>{current.name}</span>
+          <span className={`${pill.meta} ${styles.role}`}>{current.role}</span>
         </span>
+        <ChevronDownIcon className={pill.chevron} />
       </button>
 
       {open ? (
@@ -70,12 +71,8 @@ export function UserSwitcher({ value, onChange }: Props) {
                     setOpen(false)
                   }}
                 >
-                  <span className={styles.optionName}>
-                    {user.label.split(' — ')[0]}
-                  </span>
-                  <span className={styles.optionMeta}>
-                    {user.label.split(' — ')[1] ?? user.id}
-                  </span>
+                  <span className={styles.optionName}>{user.name}</span>
+                  <span className={styles.optionMeta}>{user.role}</span>
                 </button>
               </li>
             )

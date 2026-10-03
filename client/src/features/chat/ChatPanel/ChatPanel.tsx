@@ -13,11 +13,7 @@ export function ChatPanel() {
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>Chat</h1>
-          <p className={`textMeta ${styles.meta}`}>
-            {chat.conversationId
-              ? `Conversation ${chat.conversationId}`
-              : 'New conversation'}
-          </p>
+          <p className={styles.meta}>Your personal food assistant</p>
         </div>
         {chat.phase !== 'idle' && chat.phase !== 'complete' && (
           <p className={styles.phase} aria-live="polite">

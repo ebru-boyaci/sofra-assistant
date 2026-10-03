@@ -1,74 +1,103 @@
 .root {
   display: grid;
   grid-template-columns: 1fr auto;
-  gap: var(--space-2) var(--space-4);
-  align-items: start;
-  padding: var(--space-4) var(--space-5);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-
-.unavailable {
-  border-style: dashed;
-  background: var(--surface-muted);
-  opacity: 0.92;
-}
-
-.nameRow {
-  display: flex;
-  flex-wrap: wrap;
+  column-gap: var(--space-4);
+  row-gap: 0.35rem;
   align-items: center;
-  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+.root.unavailable,
+.root.ageRestricted {
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-3));
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius);
+}
+
+.root.unavailable {
+  background: var(--danger-soft);
+}
+
+.root.ageRestricted {
+  background: var(--warning-soft);
 }
 
 .name {
+  grid-column: 1;
+  grid-row: 1;
   margin: 0;
-  font-weight: 600;
-}
-
-.category {
-  margin: 0;
-  font-size: var(--text-meta);
-  color: var(--muted);
+  font-size: var(--chat-size);
+  font-weight: var(--chat-title-weight);
+  line-height: var(--chat-lh);
+  color: var(--chat-color);
 }
 
 .price {
+  grid-column: 2;
+  grid-row: 1;
   margin: 0;
-  font-weight: 650;
+  font-size: var(--chat-size);
+  font-weight: var(--weight-emphasis);
+  line-height: var(--chat-lh);
   font-variant-numeric: tabular-nums;
   text-align: right;
+  color: var(--chat-color);
 }
 
 .badges {
-  grid-column: 1 / -1;
+  grid-column: 2;
+  grid-row: 1;
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.root:has(.badges) .price {
+  grid-row: 2;
+}
+
+.root:has(.badges) .name {
+  grid-row: 1 / span 2;
+  align-self: center;
 }
 
 .badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.15rem 0.45rem;
-  border-radius: var(--radius-sm);
-  font-size: var(--text-meta);
-  font-weight: 650;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-pill);
+  font-size: var(--chat-meta-size);
+  font-weight: var(--chat-weight);
+  line-height: 1.2;
+  border: var(--border-width) solid transparent;
 }
 
 .badgeIcon {
+  width: 0.9rem;
+  height: 0.9rem;
+  flex-shrink: 0;
+}
+
+.ageMark {
+  font-size: var(--text-caption);
+  font-weight: var(--weight-emphasis);
+  letter-spacing: 0.02em;
   line-height: 1;
 }
 
 .age {
   color: var(--warning);
-  background: var(--warning-soft);
-  border: 1px solid var(--warning);
+  background: color-mix(in srgb, var(--warning-soft) 70%, var(--surface));
+  border-color: color-mix(in srgb, var(--warning) 28%, transparent);
 }
 
 .out {
   color: var(--danger);
-  background: var(--danger-soft);
-  border: 1px solid var(--danger);
+  background: color-mix(in srgb, var(--danger-soft) 70%, var(--surface));
+  border-color: color-mix(in srgb, var(--danger) 28%, transparent);
 }

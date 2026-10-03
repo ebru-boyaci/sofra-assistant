@@ -1,0 +1,28 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-muted);
+  border-bottom: var(--border-width) solid var(--border);
+  z-index: 1;
+}
+
+.brand {
+  font-size: var(--text-brand);
+  font-weight: var(--weight-title);
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.amount {
+  font-weight: var(--weight-title);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}

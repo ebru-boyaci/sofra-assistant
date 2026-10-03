@@ -1,4 +1,4 @@
-import { Button, TextArea } from '@/shared/ui'
+import { ArrowUpIcon, Button, TextArea } from '@/shared/ui'
 import styles from './Composer.module.css'
 
 type Props = {
@@ -33,36 +33,43 @@ export function Composer({
       <label className={styles.srOnly} htmlFor="chat-composer">
         Message
       </label>
-      <TextArea
-        id="chat-composer"
-        name="message"
-        rows={2}
-        placeholder={
-          rateLimited
-            ? 'Rate limited — wait to send…'
-            : 'Message Sofra…'
-        }
-        disabled={disabled || rateLimited}
-        aria-describedby="chat-composer-hint"
-        onKeyDown={(event) => {
-          if (event.key !== 'Enter' || event.shiftKey) return
-          event.preventDefault()
-          event.currentTarget.form?.requestSubmit()
-        }}
-      />
-      <p id="chat-composer-hint" className={`textMeta ${styles.hint}`}>
-        Enter sends a message — it never confirms. Shift+Enter for a new line.
-      </p>
-      <div className={styles.actions}>
+      <div className={styles.field}>
+        <TextArea
+          id="chat-composer"
+          className={styles.input}
+          name="message"
+          rows={1}
+          placeholder={
+            rateLimited
+              ? 'Rate limited — wait to send…'
+              : 'Message Sofra…'
+          }
+          disabled={disabled || rateLimited}
+          aria-describedby="chat-composer-hint"
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter' || event.shiftKey) return
+            event.preventDefault()
+            event.currentTarget.form?.requestSubmit()
+          }}
+        />
         {busy ? (
           <Button type="button" variant="secondary" onClick={onStop}>
             Stop
           </Button>
         ) : null}
-        <Button type="submit" disabled={disabled || rateLimited}>
-          {busy ? 'Send (replace)' : 'Send'}
+        <Button
+          type="submit"
+          className={styles.send}
+          disabled={disabled || rateLimited}
+          aria-label={busy ? 'Send and replace the current response' : 'Send'}
+        >
+          <ArrowUpIcon width="1.05rem" height="1.05rem" />
+          Send
         </Button>
       </div>
+      <p id="chat-composer-hint" className={styles.hint}>
+        Enter sends a message — it never confirms. Shift+Enter for a new line.
+      </p>
     </form>
   )
 }

@@ -1,0 +1,31 @@
+.group {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.categoryTitle {
+  margin: 0;
+  font-size: var(--chat-meta-size);
+  font-weight: var(--chat-title-weight);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--chat-meta-color);
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+}
+
+.row + .row {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: var(--border-width) solid var(--border);
+}

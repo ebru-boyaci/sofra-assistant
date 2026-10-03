@@ -1,5 +1,7 @@
 import type {
+  CartSummaryBlock,
   ConfirmationPromptBlock,
+  OrderSummaryBlock,
   TrustedBlock,
 } from '@/domain/ui-spec'
 import type { ConfirmationView } from '@/domain/confirmation'
@@ -16,6 +18,7 @@ import styles from './BlockRenderer.module.css'
 
 export type BlockRendererProps = {
   block: TrustedBlock
+  confirmContext?: CartSummaryBlock | OrderSummaryBlock | null
   onConfirm?: (block: ConfirmationPromptBlock) => void
   onSuggestedAction?: (text: string) => void
   confirmView?: ConfirmationView | null
@@ -43,6 +46,7 @@ function followUpKey(block: TrustedBlock, index: number): string {
 
 export function BlockRenderer({
   block,
+  confirmContext = null,
   onConfirm,
   onSuggestedAction,
   confirmView = null,
@@ -90,6 +94,7 @@ export function BlockRenderer({
             onConfirm={onConfirm}
             view={confirmView}
             disabled={confirmDisabled}
+            contextBlock={confirmContext}
           />
           {followUps != null && followUps.length > 0 ? (
             <div

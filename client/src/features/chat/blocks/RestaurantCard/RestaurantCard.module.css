@@ -3,13 +3,16 @@
   gap: var(--space-2);
   padding: var(--space-5);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--border-width) solid var(--border);
   border-radius: var(--radius-lg);
 }
 
 .name {
   margin: 0;
-  font-weight: 650;
+  font-size: var(--chat-size);
+  font-weight: var(--chat-title-weight);
+  line-height: var(--chat-lh);
+  color: var(--chat-color);
 }
 
 .meta {
@@ -19,8 +22,9 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  font-size: var(--text-meta);
-  color: var(--muted);
+  font-size: var(--chat-meta-size);
+  line-height: var(--chat-lh);
+  color: var(--chat-meta-color);
 }
 
 .metaItem {
@@ -33,6 +37,6 @@
 }
 
 .value {
-  color: var(--text);
+  color: var(--chat-color);
   font-variant-numeric: tabular-nums;
 }

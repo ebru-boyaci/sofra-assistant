@@ -1,6 +1,6 @@
 .control {
   width: 100%;
-  border: 1px solid var(--border);
+  border: var(--border-width) solid var(--border);
   border-radius: var(--radius);
   background: var(--surface-muted);
   color: var(--text);

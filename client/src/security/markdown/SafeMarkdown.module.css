@@ -2,14 +2,24 @@
   min-height: 1.45em;
   overflow-wrap: anywhere;
   word-break: break-word;
-  color: var(--text);
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
 }
 
 .root :where(p, ul, ol, blockquote, pre, h1, h2, h3, h4) {
   margin: 0 0 0.55em;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
 }
 
-.root :where(p:last-child, ul:last-child, ol:last-child) {
+.root :where(h1, h2, h3, h4) {
+  font-weight: var(--chat-title-weight);
+}
+
+.root :where(p:last-child, ul:last-child, ol:last-child, h1:last-child, h2:last-child, h3:last-child, h4:last-child) {
   margin-bottom: 0;
 }
 
@@ -25,7 +35,7 @@
 .root :where(pre) {
   padding: var(--space-2) var(--space-3);
   background: var(--surface-muted);
-  border: 1px solid var(--border);
+  border: var(--border-width) solid var(--border);
   border-radius: var(--radius-sm);
   overflow-x: auto;
 }
@@ -37,7 +47,7 @@
 }
 
 .link {
-  color: var(--accent);
+  color: var(--text);
   text-decoration: underline;
   text-underline-offset: 2px;
 }

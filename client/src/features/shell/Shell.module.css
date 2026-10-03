@@ -1,33 +1,29 @@
-.header {
+.panel {
+  padding: var(--space-5);
+  background: var(--surface-soft);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+}
+
+.panelHead {
   display: flex;
   align-items: center;
-  gap: var(--space-5);
-  padding: var(--space-4) var(--space-6);
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface) 92%, transparent);
-  backdrop-filter: blur(12px);
-  z-index: 1;
-}
-
-.wallet {
-  margin-left: auto;
-  color: var(--muted);
-  white-space: nowrap;
-}
-
-.walletValue {
-  color: var(--text);
-  font-variant-numeric: tabular-nums;
-  font-weight: 650;
-}
-
-.panel {
-  padding: var(--space-6) var(--space-5);
-  border-bottom: 1px solid var(--border);
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
 .panelTitle {
   margin: 0 0 var(--space-4);
+  font-size: var(--text-title);
+  font-weight: var(--weight-title);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.panelHead .panelTitle {
+  margin: 0;
 }
 
 .placeholder {
@@ -36,8 +32,8 @@
 }
 
 .restaurant {
-  margin: 0 0 var(--space-3);
-  font-weight: 600;
+  margin: 0;
+  text-align: right;
 }
 
 .list,
@@ -46,25 +42,27 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .listRow {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: var(--space-2);
-}
-
-.qty {
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-item);
 }
 
 .itemName {
+  min-width: 0;
+  font-weight: var(--weight-emphasis);
   overflow-wrap: anywhere;
 }
 
-.price {
+.itemPrice {
+  flex-shrink: 0;
+  color: var(--text);
+  font-weight: var(--weight-emphasis);
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
@@ -72,67 +70,128 @@
 .totals {
   margin-top: var(--space-4);
   padding-top: var(--space-4);
-  border-top: 1px solid var(--border);
+  border-top: var(--border-width) solid var(--border);
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .totalRow {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: var(--space-3);
+  color: var(--muted);
+  font-size: var(--text-item);
+  font-weight: var(--weight-meta);
+}
+
+.amount {
+  color: var(--text);
+  font-weight: var(--weight-emphasis);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.deliveryLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.info {
+  display: inline-flex;
   color: var(--muted);
 }
 
 .totalStrong {
-  color: var(--text);
-  font-weight: 700;
   margin-top: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: var(--border-width) solid var(--border);
+  color: var(--text);
+  font-size: var(--text-body);
+  font-weight: var(--weight-title);
+}
+
+.totalStrong .amount {
+  font-weight: var(--weight-title);
 }
 
 .warning {
-  margin: var(--space-2) 0 0;
+  margin: 0;
   padding: var(--space-2) var(--space-3);
-  border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent);
+  border: var(--border-width) solid color-mix(in srgb, var(--warning) 35%, transparent);
   border-radius: var(--radius-sm);
   background: var(--warning-soft);
   color: var(--warning);
   font-size: var(--text-meta);
-  font-weight: 600;
+  font-weight: var(--weight-meta);
+}
+
+.placeOrder {
+  width: 100%;
+  margin-top: var(--space-4);
 }
 
 .orderItem {
-  padding: var(--space-3) 0;
-  border-bottom: 1px solid var(--border);
+  padding-bottom: var(--space-4);
+  border-bottom: var(--border-width) solid var(--border);
 }
 
 .orderItem:last-child {
-  border-bottom: none;
   padding-bottom: 0;
+  border-bottom: none;
 }
 
-.orderHeader {
+.orderMain {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: var(--space-2);
+  gap: var(--space-3);
+}
+
+.orderText {
+  min-width: 0;
+}
+
+.orderTitleRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.5rem;
 }
 
 .orderRestaurant {
-  font-weight: 600;
+  font-weight: var(--weight-emphasis);
 }
 
-.orderMeta {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--space-2);
-  margin-top: 0.25rem;
+.orderDate {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-meta);
+}
+
+.orderPrice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  flex-shrink: 0;
+  font-weight: var(--weight-emphasis);
+  font-variant-numeric: tabular-nums;
+}
+
+.orderExtra {
+  margin: 0.35rem 0 0;
   color: var(--muted);
   font-size: var(--text-meta);
 }
 
 .orderNote {
-  margin: var(--space-2) 0 0;
+  margin: 0.35rem 0 0;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  color: var(--text);
+  color: var(--muted);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-meta);
 }

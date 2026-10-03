@@ -3,15 +3,16 @@
   gap: var(--space-3);
   padding: var(--space-5);
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: var(--border-width) solid var(--border);
   border-radius: var(--radius-lg);
 }
 
 .title {
   margin: 0;
-  font-size: var(--text-meta);
-  font-weight: 600;
-  color: var(--muted);
+  font-size: var(--chat-meta-size);
+  font-weight: var(--chat-title-weight);
+  line-height: var(--chat-lh);
+  color: var(--chat-meta-color);
 }
 
 .items {
@@ -26,49 +27,72 @@
   display: grid;
   grid-template-columns: auto 1fr auto;
   gap: var(--space-2);
+  align-items: center;
+  font-size: var(--chat-size);
+  line-height: var(--chat-lh);
+  color: var(--chat-color);
 }
 
 .qty {
-  color: var(--muted);
+  color: var(--chat-meta-color);
+  font-weight: var(--chat-weight);
   font-variant-numeric: tabular-nums;
 }
 
 .itemName {
+  font-weight: var(--chat-title-weight);
   overflow-wrap: anywhere;
 }
 
 .itemPrice {
+  font-weight: var(--chat-title-weight);
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
 .totals {
   display: grid;
-  gap: var(--space-1);
+  gap: var(--space-3);
   padding-top: var(--space-3);
-  border-top: 1px solid var(--border);
+  border-top: var(--border-width) solid var(--border);
 }
 
 .row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: var(--space-3);
+  font-size: var(--chat-size);
+  font-weight: var(--chat-weight);
+  line-height: var(--chat-lh);
+  color: var(--chat-meta-color);
 }
 
 .rowLabel {
-  color: var(--muted);
+  color: inherit;
+  font-weight: inherit;
 }
 
 .rowValue {
+  color: var(--chat-color);
+  font-weight: var(--chat-title-weight);
   font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .total {
-  font-weight: 700;
+  margin-top: var(--space-1);
+  padding-top: var(--space-3);
+  border-top: var(--border-width) solid var(--border);
+  color: var(--chat-color);
+  font-size: var(--text-body);
+  font-weight: var(--weight-title);
 }
 
-.total .rowLabel {
-  color: var(--text);
+.total .rowLabel,
+.total .rowValue {
+  color: inherit;
+  font-weight: inherit;
 }
 
 .belowMin {
@@ -76,15 +100,15 @@
   align-items: flex-start;
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
-  border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent);
+  border: var(--border-width) solid color-mix(in srgb, var(--warning) 35%, transparent);
   border-radius: var(--radius-sm);
   background: var(--warning-soft);
   color: var(--warning);
   font-size: var(--text-meta);
-  font-weight: 550;
+  font-weight: var(--weight-meta);
 }
 
 .belowMinMark {
   flex-shrink: 0;
-  font-weight: 700;
+  font-weight: var(--weight-emphasis);
 }

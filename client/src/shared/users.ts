@@ -1,8 +1,8 @@
 export const MOCK_USERS = [
-  { id: 'u_ok', label: 'Deniz Yılmaz — standard' },
-  { id: 'u_unverified', label: 'Mert Demir — age unverified' },
-  { id: 'u_lowbalance', label: 'Ece Kaya — low balance' },
-  { id: 'u_new', label: 'Zeynep Aydın — new user' },
+  { id: 'u_ok', name: 'Deniz Yılmaz', role: 'Standard' },
+  { id: 'u_unverified', name: 'Mert Demir', role: 'Age unverified' },
+  { id: 'u_lowbalance', name: 'Ece Kaya', role: 'Low balance' },
+  { id: 'u_new', name: 'Zeynep Aydın', role: 'New user' },
 ] as const
 
 export type UserId = (typeof MOCK_USERS)[number]['id']
