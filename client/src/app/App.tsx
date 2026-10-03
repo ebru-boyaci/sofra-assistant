@@ -15,14 +15,14 @@ export function App() {
       <Header />
       <div className={styles.body}>
         <ChatSessionProvider key={userId}>
-          <main className={styles.chat} aria-label="Chat">
-            <ChatPanel />
-          </main>
           <aside className={styles.sidebar} aria-label="Shell">
             <CartPanel />
             <OrdersPanel />
             <AuditInspector />
           </aside>
+          <main className={styles.chat} aria-label="Chat">
+            <ChatPanel />
+          </main>
         </ChatSessionProvider>
       </div>
     </div>

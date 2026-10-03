@@ -11,7 +11,7 @@
 .body {
   flex: 1;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
   min-height: 0;
   overflow: hidden;
 }
@@ -19,7 +19,7 @@
 .chat {
   min-height: 0;
   padding: 0;
-  border-right: 1px solid var(--border);
+  border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   background: var(--bg);
@@ -28,12 +28,11 @@
 .sidebar {
   background: var(--surface);
   overflow: auto;
-  border-left: 1px solid transparent;
 }
 
 @media (max-width: 900px) {
   .body {
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
   }
 }
 
@@ -50,8 +49,8 @@
   }
 
   .chat {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+    border-left: none;
+    border-top: 1px solid var(--border);
     min-height: 70vh;
   }
 }

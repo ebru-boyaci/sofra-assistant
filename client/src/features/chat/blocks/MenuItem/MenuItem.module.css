@@ -1,0 +1,79 @@
+.root {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-2) var(--space-4);
+  align-items: start;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.unavailable {
+  border-style: dashed;
+  background: var(--surface-muted);
+  opacity: 0.92;
+}
+
+.nameRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.category {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.price {
+  margin: 0;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.badges {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.badgeIcon {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+.age {
+  color: var(--warning);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning);
+}
+
+.out {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger);
+}
