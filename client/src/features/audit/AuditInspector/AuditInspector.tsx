@@ -3,6 +3,7 @@ import {
   useChatSession,
   type AssistantTurn,
 } from '@/features/chat'
+import shell from '../../shell/Shell.module.css'
 import { EmptyState, Select } from '@/shared/ui'
 import { useMemo, useState, type ReactNode } from 'react'
 import styles from './AuditInspector.module.css'
@@ -42,17 +43,11 @@ export function AuditInspector() {
     null
 
   return (
-    <section className={styles.root} aria-label="Audit inspector">
-      <header className={styles.header}>
-        <h2 className={styles.title}>Audit</h2>
-        <p className={styles.subtitle}>Inspector only — not shown in chat UI</p>
-      </header>
+    <section className={`${shell.panel} ${styles.root}`} aria-label="Audit">
+      <h2 className={shell.panelTitle}>Audit</h2>
 
       {assistants.length === 0 ? (
-        <EmptyState
-          title="No turns yet"
-          hint="Send a message to inspect audit and validation failures."
-        />
+        <EmptyState title="No turns" hint="Send a message to inspect." />
       ) : (
         <>
           <label className={styles.turnPicker}>

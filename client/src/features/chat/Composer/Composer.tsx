@@ -50,7 +50,7 @@ export function Composer({
           event.currentTarget.form?.requestSubmit()
         }}
       />
-      <p id="chat-composer-hint" className={styles.hint}>
+      <p id="chat-composer-hint" className={`textMeta ${styles.hint}`}>
         Enter sends a message — it never confirms. Shift+Enter for a new line.
       </p>
       <div className={styles.actions}>

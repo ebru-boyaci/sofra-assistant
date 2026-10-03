@@ -13,7 +13,7 @@ export function ChatPanel() {
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>Chat</h1>
-          <p className={styles.meta}>
+          <p className={`textMeta ${styles.meta}`}>
             {chat.conversationId
               ? `Conversation ${chat.conversationId}`
               : 'New conversation'}

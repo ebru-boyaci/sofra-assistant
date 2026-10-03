@@ -22,10 +22,7 @@ export function CartPanel() {
           )}
 
           {cartQuery.data.items.length === 0 ? (
-            <EmptyState
-              title="Nothing here yet"
-              hint="Items appear after you add them in chat."
-            />
+            <EmptyState title="Empty" hint="Add items from chat." />
           ) : (
             <ul className={styles.list}>
               {cartQuery.data.items.map((item) => (

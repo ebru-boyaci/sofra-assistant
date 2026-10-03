@@ -6,18 +6,15 @@
   gap: 0.35rem;
   border-radius: var(--radius);
   padding: 0.55rem 1rem;
-  font-size: var(--text-sm);
   font-weight: 600;
   line-height: 1.2;
   cursor: pointer;
   border: 1px solid transparent;
-  box-shadow: var(--shadow-soft);
 }
 
 .root:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
 
 .primary {
@@ -46,11 +43,10 @@
   background: transparent;
   border-color: transparent;
   color: var(--text);
-  box-shadow: none;
 }
 
 .ghost:hover:not(:disabled) {
-  background: rgb(24 24 27 / 0.05);
+  background: rgb(28 28 26 / 0.05);
 }
 
 .danger {

@@ -6,15 +6,13 @@
 
 .title {
   margin: 0;
-  font-size: 0.85rem;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: var(--text-meta);
+  font-weight: 600;
   color: var(--muted);
 }
 
 .hint {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: var(--text-meta);
   color: var(--muted);
 }

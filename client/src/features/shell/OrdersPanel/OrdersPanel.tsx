@@ -17,10 +17,7 @@ export function OrdersPanel() {
       )}
 
       {ordersQuery.isSuccess && ordersQuery.data.length === 0 && (
-        <EmptyState
-          title="No orders yet"
-          hint="Confirmed orders show up here with status and totals."
-        />
+        <EmptyState title="None yet" hint="Confirmed orders show here." />
       )}
 
       {ordersQuery.isSuccess && ordersQuery.data.length > 0 && (

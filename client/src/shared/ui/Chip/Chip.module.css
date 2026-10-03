@@ -5,10 +5,8 @@
   color: var(--text);
   border-radius: var(--radius-pill);
   padding: 0.45rem 0.9rem;
-  font-size: var(--text-sm);
   font-weight: 500;
   cursor: pointer;
-  box-shadow: var(--shadow-soft);
 }
 
 .root:hover:not(:disabled) {
@@ -20,5 +18,4 @@
 .root:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }

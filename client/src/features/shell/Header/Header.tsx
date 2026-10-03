@@ -11,8 +11,8 @@ export function Header() {
 
   return (
     <header className={styles.header}>
-      <div className={styles.brand}>Sofra</div>
-      <div className={styles.wallet} aria-live="polite">
+      <div className="textBrand">Sofra</div>
+      <div className={`textMeta ${styles.wallet}`} aria-live="polite">
         {userQuery.isPending && 'Wallet: …'}
         {userQuery.isError && 'Wallet: unavailable'}
         {userQuery.isSuccess && wallet != null && (

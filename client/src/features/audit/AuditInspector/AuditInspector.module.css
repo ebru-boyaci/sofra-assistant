@@ -1,45 +1,17 @@
 .root {
-  padding: var(--space-4) var(--space-5);
-  border-top: 1px solid var(--border);
-}
-
-.header {
-  margin-bottom: var(--space-3);
-}
-
-.title {
-  margin: 0;
-  font-size: 0.85rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.subtitle {
-  margin: 0.25rem 0 0;
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.empty {
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.9rem;
+  border-bottom: none;
 }
 
 .turnPicker {
   display: grid;
-  gap: 0.25rem;
-  margin-bottom: var(--space-3);
+  gap: 0.35rem;
+  margin-bottom: var(--space-4);
 }
 
 .turnLabel {
-  font-size: 0.75rem;
-  font-weight: 650;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  font-weight: 550;
   color: var(--muted);
+  font-size: var(--text-meta);
 }
 
 .turnSelect {
@@ -49,13 +21,13 @@
 
 .body {
   display: grid;
-  gap: var(--space-3);
+  gap: var(--space-4);
 }
 
 .grid {
   margin: 0;
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .field {
@@ -65,25 +37,24 @@
 
 .label {
   margin: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: var(--text-meta);
+  font-weight: 500;
   color: var(--muted);
 }
 
 .value {
   margin: 0;
-  font-size: 0.9rem;
   overflow-wrap: anywhere;
 }
 
 .muted {
   color: var(--muted);
+  font-size: var(--text-meta);
 }
 
 .code {
-  font-size: 0.85em;
+  font-family: var(--font-mono);
+  font-size: 0.92em;
 }
 
 .decision {
@@ -92,8 +63,8 @@
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: var(--surface-muted);
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
   font-weight: 650;
 }
 
@@ -111,28 +82,24 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
 }
 
 .banner {
   margin: 0;
   padding: var(--space-2) var(--space-3);
-  border: 1px dashed var(--warning);
+  border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent);
   border-radius: var(--radius-sm);
   background: var(--warning-soft);
   color: var(--warning);
-  font-size: 0.85rem;
+  font-size: var(--text-meta);
   font-weight: 550;
 }
 
 .failuresTitle {
   margin: 0 0 var(--space-2);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--muted);
+  font-weight: 600;
 }
 
 .failureList {
@@ -144,7 +111,7 @@
 }
 
 .failureItem {
-  padding: var(--space-2);
+  padding: var(--space-3);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg);
@@ -158,25 +125,24 @@
 }
 
 .failureKind {
-  font-family: 'IBM Plex Mono', ui-monospace, monospace;
-  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-meta);
   font-weight: 700;
   color: var(--danger);
 }
 
 .failureMeta {
-  font-size: 0.75rem;
+  font-size: var(--text-meta);
   color: var(--muted);
 }
 
 .failureMessage {
   margin: 0;
-  font-size: 0.85rem;
 }
 
 .detailList {
   margin: 0.35rem 0 0;
   padding-left: 1rem;
-  font-size: 0.8rem;
+  font-size: var(--text-meta);
   color: var(--muted);
 }
