@@ -13,20 +13,11 @@ npm start          # mock on http://localhost:4000
 npm run client     # Vite on http://localhost:5173, proxies /api → :4000
 ```
 
-All application code lives under `client/`. Root `package.json` only adds the `client` / `client:build` / `client:test` / `client:e2e` / `client:storybook` scripts next to the original `start` / `check` / `reset`.
+All application code lives under `client/`. Root `package.json` only adds the `client` / `client:build` / `client:test` / `client:storybook` scripts next to the original `start` / `check` / `reset`.
 
 From `client/`: `npm run dev`, `npm run build`, `npm run test`, `npm run lint`, `npm run storybook`.
 
-Smoke e2e (Playwright — not the scenario matrix). Starts mock + Vite if needed; resets ledger before each test:
-
-```bash
-npm run client:e2e
-# first time only: npm exec --prefix client playwright install chromium
-```
-
-Two smokes only: place-order Confirm drops wallet ₺800 → ₺410, and `sc_23` (composer Enter never confirms; Confirm + Enter does). Ledger rows stay manual + `npm run check`.
-
-After a manual pass of a scenario row in the UI (mock already running):
+Ledger rows stay manual. After a pass of a scenario row in the UI (mock already running):
 
 ```bash
 npm run check -- sc_05    # ledger assertions for that row
