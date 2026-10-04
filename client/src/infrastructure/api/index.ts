@@ -4,7 +4,7 @@ export { streamChat } from './chatApi'
 export type { ChatStreamParams } from './chatApi'
 export { executeAction, getActionStatus } from './actionsApi'
 export { listUsers, getUser, getCart, getOrders } from './usersApi'
-export { getKbDocument } from './kbApi'
+export { getKbDocument, searchKb } from './kbApi'
 export type {
   UserSummary,
   UserDetail,
@@ -17,4 +17,6 @@ export type {
   ExecuteRequest,
   ExecuteResponse,
   KbDocument,
+  KbSearchHit,
+  KbSearchResponse,
 } from './types'

@@ -1,6 +1,11 @@
-import type { KbDocument } from '@/infrastructure/api'
+export type KbTrustFields = {
+  id: string
+  title: string
+  tags: string[]
+  date: string | null
+}
 
-export function kbTrustHint(doc: KbDocument): string | null {
+export function kbTrustHint(doc: KbTrustFields): string | null {
   const tags = doc.tags.map((t) => t.toLocaleLowerCase('en-US'))
   const title = doc.title.toLocaleLowerCase('en-US')
   const id = doc.id.toLocaleLowerCase('en-US')
@@ -20,4 +25,11 @@ export function kbTrustHint(doc: KbDocument): string | null {
   }
 
   return null
+}
+
+export function kbTrustBadge(doc: KbTrustFields): 'Archived' | 'Undated' | null {
+  const hint = kbTrustHint(doc)
+  if (hint == null) return null
+  if (hint.includes('no date')) return 'Undated'
+  return 'Archived'
 }

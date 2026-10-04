@@ -1,3 +1,8 @@
 export { AuditInspector } from './AuditInspector'
-export { SourceCitations } from './Sources'
+export {
+  KbDocumentDialog,
+  SourceCitations,
+  kbTrustBadge,
+  kbTrustHint,
+} from './Sources'
 export { useAuditTurnCount } from './useAuditTurnCount'

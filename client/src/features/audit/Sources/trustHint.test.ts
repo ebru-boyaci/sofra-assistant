@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { KbDocument } from '@/infrastructure/api'
-import { kbTrustHint } from './trustHint'
+import { kbTrustBadge, kbTrustHint } from './trustHint'
 
 function doc(partial: Partial<KbDocument> & Pick<KbDocument, 'id' | 'title'>): KbDocument {
   return {
@@ -42,5 +42,14 @@ describe('kbTrustHint', () => {
         }),
       ),
     ).toBeNull()
+  })
+
+  it('maps hints to short badges', () => {
+    expect(
+      kbTrustBadge(doc({ id: 'x', title: 'Fee', tags: ['archive'] })),
+    ).toBe('Archived')
+    expect(kbTrustBadge(doc({ id: 'faq', title: 'FAQ', date: null }))).toBe(
+      'Undated',
+    )
   })
 })

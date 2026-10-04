@@ -8,6 +8,7 @@ export {
   ArrowUpIcon,
   BagIcon,
   BanIcon,
+  BookIcon,
   ChatIcon,
   ChevronDownIcon,
   ChevronRightIcon,

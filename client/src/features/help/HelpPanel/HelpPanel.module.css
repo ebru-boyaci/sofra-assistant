@@ -1,0 +1,121 @@
+.searchRow {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0.65rem 0.85rem;
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface-muted);
+  color: var(--text);
+  font-size: var(--text-item);
+  font-weight: var(--weight-meta);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.submit {
+  flex-shrink: 0;
+}
+
+.hint {
+  margin: 0 0 var(--space-3);
+  color: var(--muted);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-meta);
+  line-height: 1.45;
+}
+
+.meta {
+  margin: 0 0 var(--space-3);
+  color: var(--muted);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-meta);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.hit {
+  appearance: none;
+  width: 100%;
+  margin: 0;
+  padding: var(--space-3);
+  border: var(--border-width) solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.hit:hover {
+  background: var(--surface-muted);
+  border-color: var(--border-strong);
+}
+
+.hitHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-item);
+  font-weight: var(--weight-emphasis);
+  line-height: 1.35;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-sm);
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-emphasis);
+}
+
+.hitMeta {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-meta);
+  font-family: var(--font-mono);
+}
+
+.snippet {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: var(--text-meta);
+  font-weight: var(--weight-meta);
+  line-height: 1.45;
+}
+
+.more {
+  width: 100%;
+  margin-top: var(--space-3);
+}
+
+.status {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-meta);
+}

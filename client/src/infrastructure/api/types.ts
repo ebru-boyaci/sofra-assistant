@@ -83,3 +83,19 @@ export type KbDocument = {
   tags: string[]
   date: string | null
 }
+
+export type KbSearchHit = {
+  id: string
+  title: string
+  category: string
+  date: string | null
+  tags: string[]
+  snippet: string
+  score: number
+}
+
+export type KbSearchResponse = {
+  total: number
+  offset: number
+  results: KbSearchHit[]
+}

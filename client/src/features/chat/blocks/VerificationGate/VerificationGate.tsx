@@ -21,7 +21,7 @@ export function VerificationGate({ block }: Props) {
       className={styles.root}
       data-block="verification_gate"
       role="status"
-      aria-label="Action blocked"
+      aria-label={`Blocked — nothing executed. ${REQUIREMENT_LABEL[block.requirement]}`}
     >
       <div className={styles.header}>
         <span className={styles.icon} aria-hidden="true">

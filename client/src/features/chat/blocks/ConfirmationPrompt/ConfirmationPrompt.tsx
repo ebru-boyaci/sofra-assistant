@@ -160,13 +160,20 @@ export function ConfirmationPrompt({
   )
   const secondaryLabel = dismissLabel(block.action, isExpired, isSuperseded)
   const showConfirmMark = status === 'LIVE' && !isBusy && !isExpired && !isSuperseded
+  const regionLabel = [
+    copy.kicker,
+    ACTION_LABEL[block.action],
+    displayTotal != null ? `total ${formatTry(displayTotal)}` : null,
+  ]
+    .filter(Boolean)
+    .join(', ')
 
   return (
     <section
       className={`${styles.root} ${copy.tone}${destructive ? ` ${styles.destructive}` : ''}`}
       data-block="confirmation_prompt"
       data-status={status}
-      aria-label={`${copy.kicker}: ${ACTION_LABEL[block.action]}`}
+      aria-label={regionLabel}
     >
       <header className={styles.banner}>
         <span className={styles.lockBadge} aria-hidden="true">
@@ -279,7 +286,7 @@ export function ConfirmationPrompt({
         {view?.countdownLabel != null &&
           view.status === 'LIVE' &&
           !isExpired && (
-          <p className={styles.countdown} aria-live="polite">
+          <p className={styles.countdown}>
             Expires in{' '}
             <span className={styles.countdownValue}>{view.countdownLabel}</span>
           </p>
@@ -302,7 +309,9 @@ export function ConfirmationPrompt({
               disabled={inactive}
               onClick={() => onConfirm?.(block)}
             >
-              {showConfirmMark ? '✓ ' : ''}
+              {showConfirmMark ? (
+                <span aria-hidden="true">✓ </span>
+              ) : null}
               {label}
             </Button>
           </div>

@@ -1,9 +1,9 @@
 import { useAuditTurnCount } from '@/features/audit'
-import { AnalyzeIcon, BagIcon, ReceiptIcon } from '@/shared/ui'
+import { AnalyzeIcon, BagIcon, BookIcon, ReceiptIcon } from '@/shared/ui'
 import { useShellCart } from '../useShellQueries'
 import styles from './SideRail.module.css'
 
-export type ShellSection = 'cart' | 'orders' | 'audit'
+export type ShellSection = 'cart' | 'orders' | 'audit' | 'help'
 
 type Props = {
   active: ShellSection
@@ -18,6 +18,7 @@ const TABS: {
   { id: 'cart', label: 'Cart', Icon: BagIcon },
   { id: 'orders', label: 'Orders', Icon: ReceiptIcon },
   { id: 'audit', label: 'Audit', Icon: AnalyzeIcon },
+  { id: 'help', label: 'Help', Icon: BookIcon },
 ]
 
 export function SideRail({ active, onChange }: Props) {

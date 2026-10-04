@@ -1,2 +1,3 @@
 export { SourceCitations } from './SourceCitations'
-export { kbTrustHint } from './trustHint'
+export { KbDocumentDialog } from './KbDocumentDialog'
+export { kbTrustBadge, kbTrustHint } from './trustHint'

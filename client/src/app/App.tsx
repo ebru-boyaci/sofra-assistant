@@ -1,5 +1,6 @@
 import { AuditInspector } from '@/features/audit'
 import { ChatPanel, ChatSessionProvider } from '@/features/chat'
+import { HelpPanel } from '@/features/help'
 import {
   CartPanel,
   Header,
@@ -15,6 +16,7 @@ const SECTION_TITLE: Record<ShellSection, string> = {
   cart: 'Cart',
   orders: 'Orders',
   audit: 'Audit',
+  help: 'Help',
 }
 
 function ShellPanel({ section }: { section: ShellSection }) {
@@ -23,6 +25,8 @@ function ShellPanel({ section }: { section: ShellSection }) {
       return <OrdersPanel />
     case 'audit':
       return <AuditInspector />
+    case 'help':
+      return <HelpPanel />
     case 'cart':
       return <CartPanel />
   }

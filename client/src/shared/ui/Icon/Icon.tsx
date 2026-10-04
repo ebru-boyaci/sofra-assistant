@@ -144,3 +144,12 @@ export function BanIcon(props: Props) {
     </BaseIcon>
   )
 }
+
+export function BookIcon(props: Props) {
+  return (
+    <BaseIcon strokeWidth="1.8" {...props}>
+      <path d="M5 5.5h5.2a2.2 2.2 0 0 1 2.2 2.2V19a1.6 1.6 0 0 0-1.6-1.6H5V5.5Z" />
+      <path d="M19 5.5h-5.2a2.2 2.2 0 0 0-2.2 2.2V19a1.6 1.6 0 0 1 1.6-1.6H19V5.5Z" />
+    </BaseIcon>
+  )
+}

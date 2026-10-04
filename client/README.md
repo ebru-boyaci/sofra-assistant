@@ -45,7 +45,7 @@ React renders the result of those decisions. It does not make them.
 
 ```
 app            providers, shell layout
-features       chat, confirmation UI, shell, audit inspector
+features       chat, confirmation UI, shell, audit inspector, help center
 domain         ui-spec, confirmation store, server clock
 infrastructure NDJSON session, fetch, execute/status
 security       markdown policy
@@ -170,9 +170,29 @@ Keyboard-only is the default path, not a later pass (`sc_23`).
 - Skip link moves focus to the composer. Interactive controls use a `:focus-visible` ring.
 - Confirm is in tab order and is never auto-focused.
 - Gate, confirm, done, expired, replaced, and error each have a text label. Status is also border style (solid / dashed / dotted), not hue alone.
-- The countdown is `aria-live="polite"`. A gate is `role="status"` with an explicit “nothing executed” label.
+- A gate is `role="status"` with an explicit “nothing executed” label.
 - Streaming text is one markdown block that grows. We do not announce each token. An empty text block reserves a “Thinking…” line so the layout does not jump when the first delta arrives.
 - Money uses `tr-TR` / TRY formatting. Display strings that we case-fold use a locale (`en-US` on the status badge) so a Turkish `i` is not destroyed by a default `toUpperCase()`.
+- When a stream leaves `loading` / `streaming`, a single `aria-live="polite"` announcement fires (`settleAnnouncement`), including action, total, and initial expiry. The visible countdown is not a live region — ticking every second would drown the settle message and the reply.
+
+## Screen-reader notes (rows 4–5)
+
+What VoiceOver / NVDA should hear, in order:
+
+**Row 4** — “Order 2 cheeseburgers from Burger Stop”
+
+1. Composer focus stays put; Confirm is not auto-focused.
+2. While bytes arrive, the text block is busy (“Thinking…”), not a live region that speaks every token.
+3. When the turn settles: one polite announcement — `Reply ready. Confirmation required: place order, total ₺390, expires in 4:59.`
+4. Moving to the confirmation region: `Confirmation required, Place order, total ₺390`.
+5. The countdown is on-screen; it is read when the user reaches that text, not re-spoken every second. Enter in the composer still sends chat, not confirm.
+
+**Row 5** — Confirm on the card
+
+1. Activate Confirm (tab to the button, then Space/Enter).
+2. One polite outcome announcement when the store reaches a terminal state — e.g. `Confirmed. Your order was placed.` (also expired / replaced / unavailable). Ordinary chat lines are not auto-read.
+3. Status copy moves to Confirmed; the region name tracks the status kicker.
+4. Wallet refresh is visual in the header; no second “already used” error after `token_used`.
 
 ## Phone layout
 
@@ -191,6 +211,10 @@ The inspector is the sidebar “Audit” section, for the reviewer. The product 
 ## Sources
 
 `audit.kb_doc_ids` render as citations in Audit (primary source first). Clicking one loads `GET /api/kb/:id` into a dialog. The KB has no `archived` field, so the dialog surfaces soft trust hints from tags (`archive`), titles (`(legacy)`, “archive”), id suffixes (`_old`, `_v0`), or a missing date — without inventing policy.
+
+## Help center
+
+The shell **Help** tab searches `GET /api/kb/search` (paginated). Results reuse the same trust badges and document dialog as Sources. Try `delivery fee` (current vs archived) or `istanbul` (Turkish fold). Chat scenarios are untouched — Help is a parallel shell panel.
 
 ## Assumptions
 
