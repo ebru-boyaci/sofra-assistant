@@ -9,6 +9,7 @@
     "client": "npm run dev --prefix client",
     "client:build": "npm run build --prefix client",
     "client:test": "npm run test --prefix client",
+    "client:storybook": "npm run storybook --prefix client",
     "check": "node scripts/check-ledger.mjs",
     "reset": "node scripts/check-ledger.mjs --reset"
   }

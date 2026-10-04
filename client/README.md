@@ -13,9 +13,18 @@ npm start          # mock on http://localhost:4000
 npm run client     # Vite on http://localhost:5173, proxies /api → :4000
 ```
 
-All application code lives under `client/`. Root `package.json` only adds the `client` / `client:build` / `client:test` scripts next to the original `start` / `check` / `reset`.
+All application code lives under `client/`. Root `package.json` only adds the `client` / `client:build` / `client:test` / `client:e2e` / `client:storybook` scripts next to the original `start` / `check` / `reset`.
 
-From `client/`: `npm run dev`, `npm run build`, `npm run test`, `npm run lint`.
+From `client/`: `npm run dev`, `npm run build`, `npm run test`, `npm run lint`, `npm run storybook`.
+
+Smoke e2e (Playwright — not the scenario matrix). Starts mock + Vite if needed; resets ledger before each test:
+
+```bash
+npm run client:e2e
+# first time only: npm exec --prefix client playwright install chromium
+```
+
+Two smokes only: place-order Confirm drops wallet ₺800 → ₺410, and `sc_23` (composer Enter never confirms; Confirm + Enter does). Ledger rows stay manual + `npm run check`.
 
 After a manual pass of a scenario row in the UI (mock already running):
 
@@ -23,8 +32,6 @@ After a manual pass of a scenario row in the UI (mock already running):
 npm run check -- sc_05    # ledger assertions for that row
 npm run reset             # reset mock state
 ```
-
-Focus, keyboard confirm, and the wallet update still need a pass in the browser (`sc_23`, rows 4–9).
 
 ## Where the dangerous decisions live
 
@@ -212,6 +219,16 @@ The inspector is the sidebar “Audit” section, for the reviewer. The product 
 
 `audit.kb_doc_ids` render as citations in Audit (primary source first). Clicking one loads `GET /api/kb/:id` into a dialog. The KB has no `archived` field, so the dialog surfaces soft trust hints from tags (`archive`), titles (`(legacy)`, “archive”), id suffixes (`_old`, `_v0`), or a missing date — without inventing policy.
 
+## Component workbench
+
+Storybook shows every catalog block in the states the transcript can reach, including ones that must not render. It does not call the mock. Confirmation cards use a seeded wallet (₺800) and cart so the prompt looks the way it does in chat. Invalid payloads go through the same Zod parser as the app: the transcript pane is only trusted blocks, and the validator pane is the failure.
+
+```bash
+npm run client:storybook   # http://localhost:6006
+```
+
+Open **Blocks → All** under each group. **Invalid** is the fail-closed set: unknown `map_view`, `price_try: "195 TL"`, a confirmation missing `expires_at`, empty slots, and a `version: "2"` document.
+
 ## Help center
 
 The shell **Help** tab searches `GET /api/kb/search` (paginated). Results reuse the same trust badges and document dialog as Sources. Try `delivery fee` (current vs archived) or `istanbul` (Turkish fold). Chat scenarios are untouched — Help is a parallel shell panel.
@@ -246,6 +263,6 @@ Client work on `main`: 2026-10-01 → 2026-10-04 (case package imported the day 
 | 1 | Oct 1 | Scaffold `client/`: Vite + React + TypeScript, folder skeleton, root `client` scripts. |
 | 2 | Oct 2 | Core path: NDJSON stream + generation guard, API client + `X-Sofra-Now`, Zod fail-closed catalog, confirmation state machine (single in-flight execute, reconcile, supersede), server clock, shell queries + invalidation, SafeMarkdown, chat orchestration (stop / conversation id), audit inspector, keyboard a11y. |
 | 3 | Oct 3 | Chat panel and message list UI; shell and audit layout. |
-| 4 | Oct 4 | Confirmation UX, visual polish, phone layout, Sources citations (`GET /api/kb/:id`), assets, client README. |
+| 4 | Oct 4 | Confirmation UX, visual polish, phone layout, Sources / Help / SR announcements, Storybook workbench, assets, client README. |
 
 Oct 2 is front-loaded on purpose. Money and trust boundaries had to be wrongable in one place before the transcript looked finished.
