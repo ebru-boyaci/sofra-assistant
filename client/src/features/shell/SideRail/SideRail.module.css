@@ -4,7 +4,7 @@
   --rail-fg-active: var(--text);
   --rail-active-bg: color-mix(in srgb, var(--ink) 10%, var(--surface));
   --rail-hover-bg: color-mix(in srgb, var(--ink) 6%, transparent);
-  --rail-badge-bg: #f0d5c8;
+  --rail-badge-bg: color-mix(in srgb, var(--warning) 32%, var(--surface));
   --rail-badge-fg: var(--text);
 
   display: flex;

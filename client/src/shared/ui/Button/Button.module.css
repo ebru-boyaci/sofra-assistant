@@ -20,15 +20,15 @@
 .primary {
   background: var(--text);
   border-color: var(--text);
-  color: #fff;
+  color: var(--accent-fg);
   border-radius: var(--radius-pill);
   padding: 0.85rem 1.25rem;
   font-weight: var(--weight-emphasis);
 }
 
 .primary:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--text) 88%, white);
-  border-color: color-mix(in srgb, var(--text) 88%, white);
+  background: color-mix(in srgb, var(--text) 88%, var(--accent-fg));
+  border-color: color-mix(in srgb, var(--text) 88%, var(--accent-fg));
 }
 
 .secondary {
@@ -45,7 +45,7 @@
 .danger {
   background: var(--danger);
   border-color: var(--danger);
-  color: #fff;
+  color: var(--accent-fg);
 }
 
 .danger:hover:not(:disabled) {

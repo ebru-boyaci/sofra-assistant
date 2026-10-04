@@ -78,7 +78,7 @@
   height: 2.25rem;
   border-radius: 50%;
   background: var(--warning);
-  color: #fff;
+  color: var(--accent-fg);
 }
 
 .live .lockBadge,
@@ -104,7 +104,7 @@
 .lockIcon {
   width: 1.05rem;
   height: 1.05rem;
-  color: #fff;
+  color: var(--accent-fg);
 }
 
 .bannerCopy {

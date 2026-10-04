@@ -22,7 +22,7 @@
   height: 2.25rem;
   border-radius: 50%;
   font-weight: var(--weight-title);
-  color: #fff;
+  color: var(--accent-fg);
   background: var(--danger);
   line-height: 1;
 }
