@@ -271,8 +271,10 @@ Oct 2 is front-loaded on purpose. Money and trust boundaries had to be wrongable
 
 ## What I would do with more time / production
 
-- Generate the Zod catalog from `schema/ui_spec.schema.json` in CI so hand-written schemas cannot drift, and keep `.strict()` as the generated default.
-- Add a real dismiss/void path for the secondary confirmation control (or remove the control) once the contract exposes one; until then it must not pretend to cancel a live token.
-- Restore conversations after reload via `GET /api/conversations/:id` and rehydrate pending prompts only through `GET /api/actions/status`, never from `localStorage`.
-- Playwright (or similar) against the scenario table and `/__admin/ledger`, especially rows 4–9, 17, and 20–22.
+I cut two bonus items on purpose: **conversation restore after reload**, and **end-to-end tests against the ledger**. Both are worth doing; neither is worth doing thinly. A reload path that trusts anything other than `GET /api/actions/status` for pending tokens is worse than no restore. An E2E suite that does not pin rows 4–9, 17, and 20–22 against `/__admin/ledger` is theatre. I would land those next, with time to make the assertions the behavioural contract rather than a smoke pass.
+
+In production I would also:
+
+- Generate the Zod catalog from `schema/ui_spec.schema.json` in CI so hand-written schemas cannot drift, keeping `.strict()` as the generated default.
+- Add a real dismiss/void for the secondary confirmation control once the contract exposes one; until then it must not pretend to cancel a live token.
 - Window the transcript before hundreds of block-heavy turns; lazy-load markdown and the audit inspector if the catalog or KB surface grows.
