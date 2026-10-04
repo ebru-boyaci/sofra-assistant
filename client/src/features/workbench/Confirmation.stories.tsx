@@ -64,7 +64,7 @@ const items: StateItem[] = [
     note: 'The execute call died without a response. Status is checked; the user is not asked to approve again.',
     node: confirmBlocks(
       placed,
-      confirmationView('RECONCILING', 'Outcome unknown — retrying status…'),
+      confirmationView('RECONCILING', 'Outcome unknown — checking again in 2s'),
     ),
   },
   {

@@ -25,6 +25,17 @@ export type ConfirmationStoreDeps = {
   getStatus: (confirmToken: string) => Promise<ActionStatusResponse>
   isTransportError: (error: unknown) => boolean
   onDone?: (entry: ConfirmationEntry) => void
+  wait?: (ms: number) => Promise<void>
+}
+
+const RECONCILE_MAX_DELAY_MS = 10_000
+
+function reconcileDelayMs(attempt: number): number {
+  return Math.min(1000 * 2 ** attempt, RECONCILE_MAX_DELAY_MS)
+}
+
+function defaultWait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
 function extractErrorCode(body: unknown): string | null {
@@ -224,16 +235,27 @@ export function createConfirmationStore(deps: ConfirmationStoreDeps) {
   }
 
   async function reconcile(entry: ConfirmationEntry): Promise<void> {
+    const wait = deps.wait ?? defaultWait
     entry.status = 'RECONCILING'
+    entry.message = null
     notify()
-    try {
-      const status = await deps.getStatus(entry.token)
-      applyStatusOutcome(entry, status)
-    } catch {
-      entry.status = 'RECONCILING'
-      entry.message = 'Outcome unknown — retrying status…'
+    // Status reads are safe to repeat; execute is not. Keep asking until the
+    // server gives a definite answer or the prompt is retired locally.
+    for (let attempt = 0; ; attempt += 1) {
+      try {
+        const status = await deps.getStatus(entry.token)
+        applyStatusOutcome(entry, status)
+        notify()
+        return
+      } catch {
+        if (entry.status !== 'RECONCILING') return
+        const delayMs = reconcileDelayMs(attempt)
+        entry.message = `Outcome unknown — checking again in ${Math.round(delayMs / 1000)}s`
+        notify()
+        await wait(delayMs)
+        if (entry.status !== 'RECONCILING') return
+      }
     }
-    notify()
   }
 
   async function confirm(token: string): Promise<void> {

@@ -28,6 +28,7 @@ function makeStore(overrides: {
   execute?: ConfirmationStoreDeps['execute']
   getStatus?: ConfirmationStoreDeps['getStatus']
   onDone?: ConfirmationStoreDeps['onDone']
+  wait?: ConfirmationStoreDeps['wait']
 } = {}) {
   const execute: ConfirmationStoreDeps['execute'] =
     overrides.execute ??
@@ -52,6 +53,7 @@ function makeStore(overrides: {
     isTransportError: (error) =>
       error instanceof Error && error.name === 'TransportError',
     onDone: overrides.onDone,
+    wait: overrides.wait ?? (async () => {}),
   })
 
   return { store, execute: executeSpy, getStatus: getStatusSpy }
@@ -152,6 +154,73 @@ describe('confirmation store', () => {
 
     await store.confirm('ct_live.one')
     expect(execute).toHaveBeenCalledTimes(1)
+  })
+
+  it('status lookup that fails is retried until it answers (still one execute)', async () => {
+    syncServerClock('2026-08-20T09:00:00.000Z')
+    const transport = Object.assign(new Error('socket destroyed'), {
+      name: 'TransportError',
+    })
+    const execute = vi.fn(async () => {
+      throw transport
+    })
+    let calls = 0
+    const getStatus = vi.fn(async () => {
+      calls += 1
+      if (calls < 3) throw new Error('network down')
+      return {
+        state: 'used' as const,
+        result: {
+          version: '1',
+          blocks: [{ type: 'text', markdown: 'Tip added' }],
+          audit: { decision: 'answered' },
+        },
+      }
+    })
+    const waits: number[] = []
+    const { store } = makeStore({
+      execute,
+      getStatus,
+      wait: async (ms) => {
+        waits.push(ms)
+      },
+    })
+    store.register('u_ok', prompt())
+
+    await store.confirm('ct_live.one')
+
+    expect(execute).toHaveBeenCalledTimes(1)
+    expect(getStatus).toHaveBeenCalledTimes(3)
+    expect(waits).toEqual([1000, 2000])
+    expect(store.get('ct_live.one')?.status).toBe('DONE')
+  })
+
+  it('status retries stop once the prompt is retired by a user switch', async () => {
+    syncServerClock('2026-08-20T09:00:00.000Z')
+    const transport = Object.assign(new Error('socket destroyed'), {
+      name: 'TransportError',
+    })
+    const execute = vi.fn(async () => {
+      throw transport
+    })
+    const getStatus = vi.fn(async () => {
+      throw new Error('network down')
+    })
+    let store!: ReturnType<typeof makeStore>['store']
+    ;({ store } = makeStore({
+      execute,
+      getStatus,
+      wait: async () => {
+        store.clearUser('u_ok')
+      },
+    }))
+    store.register('u_ok', prompt())
+
+    await store.confirm('ct_live.one')
+
+    expect(getStatus).toHaveBeenCalledTimes(1)
+    expect(execute).toHaveBeenCalledTimes(1)
+    expect(store.get('ct_live.one')?.status).toBe('SUPERSEDED')
   })
 
   it('invalid prompt → no Confirm (never registered as actionable)', () => {

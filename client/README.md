@@ -131,10 +131,11 @@ stateDiagram-v2
   LIVE --> SUPERSEDED: user switch
   LIVE --> CONFIRMING: one deliberate click
   CONFIRMING --> DONE: 2xx, or 409 token_used
-  CONFIRMING --> EXPIRED: 410 or token_expired
+  CONFIRMING --> EXPIRED: 410 token_expired
   CONFIRMING --> SUPERSEDED: 409 superseded or void
   CONFIRMING --> REJECTED: any other HTTP error
   CONFIRMING --> RECONCILING: transport died, no response
+  RECONCILING --> RECONCILING: status lookup failed, retry with backoff
   RECONCILING --> DONE: status used
   RECONCILING --> EXPIRED: status expired
   RECONCILING --> SUPERSEDED: status superseded or void
@@ -149,7 +150,7 @@ Exactly once:
 - The Confirm control is `<button type="button">`. It is not focused when the prompt appears. Enter in the composer submits the form that sends a chat message. The hint under the composer says so. There is no path from that key to `confirm()`.
 - A newer prompt for the same user and action marks older `LIVE` / `CONFIRMING` / `RECONCILING` entries `SUPERSEDED` before the new one is stored. The old button disables. The ledger should show zero attempts with the old token.
 - `token_used` (409 after a duplicate that still raced) is `DONE`, not an error. The UI does not say “already used” after a success.
-- A dropped execute response is `TransportError`. The store reconciles with `GET /api/actions/status` and does not ask for a second approval. `used` becomes `DONE` and renders `nextBlocks` from the status result, so a tip that actually landed is shown as landed (`drop_execute_response`).
+- A dropped execute response is `TransportError`. The store reconciles with `GET /api/actions/status` and does not ask for a second approval. `used` becomes `DONE` and renders `nextBlocks` from the status result, so a tip that actually landed is shown as landed (`drop_execute_response`). If the status lookup itself fails, it is retried with backoff (1s, 2s, 4s, 8s, then every 10s) and the card says when the next check runs. Status reads are safe to repeat; execute is never repeated. The loop stops as soon as the prompt is retired locally (superseded, user switch).
 - A 410 body can carry a fresh `confirmation_prompt`. Follow-up prompts inside a parsed execute body are registered. The expired card stays inert; the new one is the only live control.
 - Expiry is evaluated against the server clock on a 1s tick and again at the start of `confirm()`. Without a clock sample, `canStartConfirm` is false. We do not guess with the laptop clock.
 
@@ -251,7 +252,7 @@ The tests pin the behaviours that move money or paint the wrong turn. They are n
 | Area | File | What is pinned |
 |---|---|---|
 | Stream | `infrastructure/streaming/streamEngine.test.ts`, `infrastructure/api/apiClient.test.ts` | Split UTF-8, split lines, duplicate `seq`, missing `done`, error/`retryable`, abort and supersede leak nothing into the next turn |
-| Confirmation | `domain/confirmation/confirmationStore.test.ts` | Single in-flight execute, expiry by server clock, supersede, transport failure reconciles once, invalid prompt never registers, `onDone` for shell refresh |
+| Confirmation | `domain/confirmation/confirmationStore.test.ts` | Single in-flight execute, expiry by server clock, supersede, transport failure reconciles without a second execute (a failing status lookup is retried, and stops on user switch), invalid prompt never registers, `onDone` for shell refresh |
 | Blocks | `domain/ui-spec/uiSpec.test.ts` | Unknown skipped, invalid not rendered, malformed confirmation fail-closed |
 | Markdown | `security/markdown/SafeMarkdown.test.tsx` | HTML inert, `javascript:` not a link, image `src` not fetched |
 | Clock | `domain/clock/serverClock.test.ts` | Anchor, countdown, Istanbul relative day |
@@ -267,7 +268,21 @@ Client work on `main`: 2026-10-01 → 2026-10-04 (case package imported the day 
 | 3 | Oct 3 | Chat panel and message list UI; shell and audit layout. |
 | 4 | Oct 4 | Confirmation UX, visual polish, phone layout, Sources / Help / SR announcements, Storybook workbench, assets, client README. |
 
-Oct 2 is front-loaded on purpose. Money and trust boundaries had to be wrongable in one place before the transcript looked finished.
+Oct 2 is front-loaded on purpose. The money and trust decisions had to live in one owned place, each, before the transcript was allowed to look finished.
+
+## Contract changes I would propose
+
+The client speaks the contract as given. These are the places where it had to infer something the server already knows, with the change I would make.
+
+| Gap | What the client does today | Proposed change |
+|---|---|---|
+| No way to decline a prompt | “Not now” never calls the server, so a live token stays live until it expires or is superseded | `POST /api/actions/void { user_id, confirm_token }` → `{ state: "void" }`. The secondary control becomes a real decline, and the ledger can tell “declined” from “ignored”. |
+| Supersession is implicit | The store infers “replaced” from same user + same action, locally | `confirmation_prompt.supersedes: <confirm_token>?`. The server states which prompt it replaced; the client stops guessing, and a resumed conversation can mark old prompts without asking status for each. |
+| A silent stream and a slow stream look the same | A 2.5s idle timer after the first byte marks the turn incomplete | A `heartbeat` stream event every N seconds while the model is working. No heartbeat for 2N means dead; the timer stops being a client assumption. |
+| Version is refused, not negotiated | `version: "2"` freezes the turn and tells the user plainly | The client sends `Accept-Version: 1` on `POST /api/chat`; the server either answers in v1 or returns `406` before streaming. No half-sent document the client cannot use. |
+| KB trust is heuristic | Trust hints come from tags, titles, id suffixes, missing dates | `status: current \| archived \| superseded`, `superseded_by`, and `effective_from` on every KB document. Citations can then say “superseded by X” instead of “looks old”. |
+
+None of these change what the client may do with money. They remove inferences from the client, which is where the next bug would hide.
 
 ## What I would do with more time / production
 
