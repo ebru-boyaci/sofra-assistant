@@ -10,7 +10,6 @@
     "client:build": "npm run build --prefix client",
     "client:test": "npm run test --prefix client",
     "check": "node scripts/check-ledger.mjs",
-    "reset": "node scripts/check-ledger.mjs --reset",
-    "walk": "node scripts/walk-scenarios.mjs"
+    "reset": "node scripts/check-ledger.mjs --reset"
   }
 }

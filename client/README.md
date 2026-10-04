@@ -13,18 +13,18 @@ npm start          # mock on http://localhost:4000
 npm run client     # Vite on http://localhost:5173, proxies /api → :4000
 ```
 
+The case study trees stay as shipped: `mock-server/`, `data/`, `schema/`, `scripts/`, and `scenarios.jsonl` are unmodified. All application code lives under `client/`. Root `package.json` only adds the `client` / `client:build` / `client:test` scripts next to the original `start` / `check` / `reset`.
+
 From `client/`: `npm run dev`, `npm run build`, `npm run test`, `npm run lint`.
 
-Review walk, with the mock already running:
+After a manual pass of a scenario row in the UI (mock already running):
 
 ```bash
-npm run walk              # all 24 rows, then the ledger assertions
-npm run walk -- sc_05     # one row
-npm run check -- sc_05    # ledger only, after a manual pass in the UI
-npm run reset
+npm run check -- sc_05    # ledger assertions for that row
+npm run reset             # reset mock state
 ```
 
-`scripts/walk-scenarios.mjs` drives the HTTP contract the way a well-behaved client does. Focus, keyboard confirm, and the wallet update still need a pass in the browser (`sc_23`, rows 4–9).
+Focus, keyboard confirm, and the wallet update still need a pass in the browser (`sc_23`, rows 4–9).
 
 ## Where the dangerous decisions live
 
