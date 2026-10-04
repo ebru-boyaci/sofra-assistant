@@ -65,6 +65,36 @@ describe('settleAnnouncement', () => {
     )
   })
 
+  it('names a tip confirmation with amount_try, not the order total', () => {
+    syncServerClock('2026-08-20T11:55:00+03:00')
+    expect(
+      settleAnnouncement(
+        turn({
+          status: 'complete',
+          blocks: [
+            {
+              type: 'order_summary',
+              order_id: 'u_ok_o9',
+              restaurant: 'Burger Stop',
+              total_try: 390,
+              status: 'delivered',
+            },
+            {
+              type: 'confirmation_prompt',
+              action: 'add_tip',
+              summary: 'Tip 20 TL',
+              confirm_token: 'tok_tip',
+              expires_at: '2026-08-20T12:00:00+03:00',
+              params: { order_id: 'u_ok_o9', amount_try: 20 },
+            },
+          ],
+        }),
+      ),
+    ).toBe(
+      'Reply ready. Confirmation required: add tip, tip ₺20, expires in 5:00.',
+    )
+  })
+
   it('names a verification gate', () => {
     expect(
       settleAnnouncement(

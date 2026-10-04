@@ -100,9 +100,15 @@ function dismissLabel(
   return 'Not now'
 }
 
-function paramTotal(params: Record<string, unknown>): number | null {
-  const value = params.total_try
-  return typeof value === 'number' && Number.isFinite(value) ? value : null
+function paramNumber(
+  params: Record<string, unknown>,
+  keys: readonly string[],
+): number | null {
+  for (const key of keys) {
+    const value = params[key]
+    if (typeof value === 'number' && Number.isFinite(value)) return value
+  }
+  return null
 }
 
 export function ConfirmationPrompt({
@@ -146,9 +152,17 @@ export function ConfirmationPrompt({
 
   const itemCount =
     cart?.items.reduce((sum, item) => sum + item.qty, 0) ?? null
-  const totalFromParams = paramTotal(block.params)
+  const tipAmount =
+    block.action === 'add_tip'
+      ? paramNumber(block.params, ['amount_try', 'tip_try', 'total_try'])
+      : null
   const displayTotal =
-    cart?.total_try ?? order?.total_try ?? totalFromParams
+    tipAmount ??
+    cart?.total_try ??
+    (block.action === 'add_tip'
+      ? null
+      : (order?.total_try ?? paramNumber(block.params, ['total_try'])))
+  const moneyLabel = block.action === 'add_tip' ? 'Tip' : 'Total'
 
   const label = confirmButtonLabel(
     status,
@@ -163,7 +177,9 @@ export function ConfirmationPrompt({
   const regionLabel = [
     copy.kicker,
     ACTION_LABEL[block.action],
-    displayTotal != null ? `total ${formatTry(displayTotal)}` : null,
+    displayTotal != null
+      ? `${moneyLabel.toLocaleLowerCase('en-US')} ${formatTry(displayTotal)}`
+      : null,
   ]
     .filter(Boolean)
     .join(', ')
@@ -272,14 +288,15 @@ export function ConfirmationPrompt({
             )}
             {displayTotal != null && (
               <div className={`${styles.row} ${styles.totalRow}`}>
-                <span>Total</span>
+                <span>{moneyLabel}</span>
                 <span className={styles.amount}>{formatTry(displayTotal)}</span>
               </div>
             )}
           </div>
         )}
 
-        {cart == null && order == null && (
+        {(block.action === 'add_tip' ||
+          (cart == null && order == null)) && (
           <p className={styles.summary}>{block.summary}</p>
         )}
 

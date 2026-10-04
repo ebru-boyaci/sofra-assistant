@@ -12,9 +12,28 @@ const ACTION_LABEL: Record<string, string> = {
   add_tip: 'add tip',
 }
 
-function paramTotal(params: Record<string, unknown>): number | null {
-  const value = params.total_try
-  return typeof value === 'number' && Number.isFinite(value) ? value : null
+function paramNumber(
+  params: Record<string, unknown>,
+  keys: readonly string[],
+): number | null {
+  for (const key of keys) {
+    const value = params[key]
+    if (typeof value === 'number' && Number.isFinite(value)) return value
+  }
+  return null
+}
+
+function moneyPart(
+  action: string,
+  params: Record<string, unknown>,
+  cartTotal: number | undefined,
+): string {
+  if (action === 'add_tip') {
+    const tip = paramNumber(params, ['amount_try', 'tip_try', 'total_try'])
+    return tip != null ? `, tip ${formatTry(tip)}` : ''
+  }
+  const total = cartTotal ?? paramNumber(params, ['total_try'])
+  return total != null ? `, total ${formatTry(total)}` : ''
 }
 
 export function settleAnnouncement(turn: AssistantTurn): string {
@@ -27,12 +46,11 @@ export function settleAnnouncement(turn: AssistantTurn): string {
     if (confirm != null) {
       const action = ACTION_LABEL[confirm.action] ?? confirm.action
       const cart = turn.blocks.find((block) => block.type === 'cart_summary')
-      const total = cart?.total_try ?? paramTotal(confirm.params)
-      const totalPart = total != null ? `, total ${formatTry(total)}` : ''
+      const amountPart = moneyPart(confirm.action, confirm.params, cart?.total_try)
       const remaining = remainingMsUntil(confirm.expires_at, getServerNowMs())
       const expiryPart =
         remaining != null ? `, expires in ${formatCountdown(remaining)}` : ''
-      return `Reply ready. Confirmation required: ${action}${totalPart}${expiryPart}.`
+      return `Reply ready. Confirmation required: ${action}${amountPart}${expiryPart}.`
     }
     if (gate != null) {
       return `Reply ready. Action blocked — nothing executed. ${gate.requirement}.`
