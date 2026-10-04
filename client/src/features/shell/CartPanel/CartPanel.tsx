@@ -1,4 +1,6 @@
 import { useChatSession } from '@/features/chat'
+import { useConfirmation } from '@/features/confirmation'
+import { useCurrentUser } from '@/shared/useCurrentUser'
 import { formatTry } from '@/shared/formatMoney'
 import { Button, ChevronRightIcon, EmptyState, InfoIcon, Skeleton } from '@/shared/ui'
 import styles from '../Shell.module.css'
@@ -7,8 +9,17 @@ import { useShellCart } from '../useShellQueries'
 export function CartPanel() {
   const cartQuery = useShellCart()
   const chat = useChatSession()
+  const { userId } = useCurrentUser()
+  const { store } = useConfirmation()
   const cart = cartQuery.isSuccess ? cartQuery.data : null
   const canOrder = cart != null && cart.items.length > 0 && cart.quote != null
+  const hasOpenConfirm = store.getAll().some(
+    (entry) =>
+      entry.userId === userId &&
+      (entry.status === 'LIVE' ||
+        entry.status === 'CONFIRMING' ||
+        entry.status === 'RECONCILING'),
+  )
 
   return (
     <section className={styles.panel} aria-label="Cart">
@@ -84,7 +95,7 @@ export function CartPanel() {
           {canOrder && (
             <Button
               className={styles.placeOrder}
-              disabled={chat.isBusy}
+              disabled={chat.isBusy || hasOpenConfirm}
               onClick={() => {
                 void chat.send('Order what is in my cart')
               }}
