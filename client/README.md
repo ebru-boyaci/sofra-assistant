@@ -178,11 +178,19 @@ Keyboard-only is the default path, not a later pass (`sc_23`).
 
 Below 720px the composition flips: chat is the full viewport, Cart / Orders / Audit become a bottom nav, and the active shell panel opens as a bottom sheet. Dismiss by tapping the dimmed area, pressing Escape, or tapping the same tab again. Desktop keeps the three-column rail + sidebar + chat. Safe-area insets are respected on notched devices.
 
+## Performance
+
+The transcript is not virtualised. Scenario-length chats stay fine; hundreds of block-heavy turns would want windowing before anything else. Streaming cost is mostly layout, not parse: bytes assemble outside React, Zod runs on settled slots, and an empty text block keeps a “Thinking…” row so the first `text_delta` does not shove the composer. We do not re-announce every token. Production build is ~532 kB JS (~160 kB gzip); most of that is React + `react-markdown`. If the catalog grew, lazy-loading the markdown path and the audit inspector would be the first cuts.
+
 ## Audit inspector
 
 Every assistant turn keeps `decision`, `reason`, `intent`, `tools_called`, `kb_doc_ids`, the request id, the turn status, and per-block validation failures, including rejected confirmations.
 
 The inspector is the sidebar “Audit” section, for the reviewer. The product transcript does not repeat `audit.decision`. The user already sees the outcome: a gate, a confirmation card, or ordinary text. Putting `blocked` / `unknown` / `clarify` in the bubble would leak protocol vocabulary and compete with the block that already explains the situation. Row 18’s “I don’t know” stays a normal answer in chat; the inspector is where `unknown` vs `answered` (and `pol_delivery_fee_v2`) is visible.
+
+## Sources
+
+`audit.kb_doc_ids` render as citations in Audit (primary source first). Clicking one loads `GET /api/kb/:id` into a dialog. The KB has no `archived` field, so the dialog surfaces soft trust hints from tags (`archive`), titles (`(legacy)`, “archive”), id suffixes (`_old`, `_v0`), or a missing date — without inventing policy.
 
 ## Assumptions
 
@@ -214,6 +222,6 @@ Client work on `main`: 2026-10-01 → 2026-10-04 (case package imported the day 
 | 1 | Oct 1 | Scaffold `client/`: Vite + React + TypeScript, folder skeleton, root `client` scripts. |
 | 2 | Oct 2 | Core path: NDJSON stream + generation guard, API client + `X-Sofra-Now`, Zod fail-closed catalog, confirmation state machine (single in-flight execute, reconcile, supersede), server clock, shell queries + invalidation, SafeMarkdown, chat orchestration (stop / conversation id), audit inspector, keyboard a11y. |
 | 3 | Oct 3 | Chat panel and message list UI; shell and audit layout. |
-| 4 | Oct 4 | Confirmation UX (retry cooldown, states), visual polish, phone layout (bottom nav + sheet), assets, client README. |
+| 4 | Oct 4 | Confirmation UX, visual polish, phone layout, Sources citations (`GET /api/kb/:id`), assets, client README. |
 
 Oct 2 is front-loaded on purpose. Money and trust boundaries had to be wrongable in one place before the transcript looked finished.

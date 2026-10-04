@@ -4,6 +4,7 @@ export { streamChat } from './chatApi'
 export type { ChatStreamParams } from './chatApi'
 export { executeAction, getActionStatus } from './actionsApi'
 export { listUsers, getUser, getCart, getOrders } from './usersApi'
+export { getKbDocument } from './kbApi'
 export type {
   UserSummary,
   UserDetail,
@@ -15,4 +16,5 @@ export type {
   ActionStatusState,
   ExecuteRequest,
   ExecuteResponse,
+  KbDocument,
 } from './types'

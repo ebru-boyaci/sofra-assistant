@@ -74,3 +74,12 @@ export type ExecuteResponse = {
   httpStatus: number
   body: unknown
 }
+
+export type KbDocument = {
+  id: string
+  title: string
+  body: string
+  category: string
+  tags: string[]
+  date: string | null
+}

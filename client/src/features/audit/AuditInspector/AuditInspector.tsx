@@ -7,6 +7,7 @@ import shell from '../../shell/Shell.module.css'
 import pill from '../../shell/HeaderPill.module.css'
 import { ChevronDownIcon, EmptyState } from '@/shared/ui'
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react'
+import { SourceCitations } from '../Sources'
 import styles from './AuditInspector.module.css'
 
 function Field({
@@ -261,15 +262,9 @@ function AuditDetails({ turn }: { turn: AssistantTurn }) {
             <EmptyValue />
           )}
         </Field>
-        <Field label="KB docs" className={styles.full}>
+        <Field label="Sources" className={styles.full}>
           {audit?.kb_doc_ids && audit.kb_doc_ids.length > 0 ? (
-            <ul className={styles.chipList}>
-              {audit.kb_doc_ids.map((id) => (
-                <li key={id} className={styles.chip}>
-                  {id}
-                </li>
-              ))}
-            </ul>
+            <SourceCitations ids={audit.kb_doc_ids} />
           ) : (
             <EmptyValue />
           )}
