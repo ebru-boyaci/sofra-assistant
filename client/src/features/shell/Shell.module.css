@@ -195,3 +195,11 @@
   font-size: var(--text-meta);
   font-weight: var(--weight-meta);
 }
+
+@media (max-width: 720px) {
+  .panel {
+    padding: var(--space-4);
+    border-radius: var(--radius);
+    box-shadow: none;
+  }
+}

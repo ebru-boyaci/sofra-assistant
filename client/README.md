@@ -13,7 +13,7 @@ npm start          # mock on http://localhost:4000
 npm run client     # Vite on http://localhost:5173, proxies /api → :4000
 ```
 
-The case study trees stay as shipped: `mock-server/`, `data/`, `schema/`, `scripts/`, and `scenarios.jsonl` are unmodified. All application code lives under `client/`. Root `package.json` only adds the `client` / `client:build` / `client:test` scripts next to the original `start` / `check` / `reset`.
+All application code lives under `client/`. Root `package.json` only adds the `client` / `client:build` / `client:test` scripts next to the original `start` / `check` / `reset`.
 
 From `client/`: `npm run dev`, `npm run build`, `npm run test`, `npm run lint`.
 
@@ -51,6 +51,8 @@ infrastructure NDJSON session, fetch, execute/status
 security       markdown policy
 shared         user context, money formatting, primitives
 ```
+
+UI lives under `features/`. Confirmation lifecycle, block validation, and the server clock live under `domain/`. Features depend on `domain`, `infrastructure`, `security`, and `shared`; domain does not import from features or React UI. A component can ask a store or a parse result; it should not invent eligibility, expiry, or “did this execute?”.
 
 Four pieces of state, on purpose:
 
@@ -172,7 +174,9 @@ Keyboard-only is the default path, not a later pass (`sc_23`).
 - Streaming text is one markdown block that grows. We do not announce each token. An empty text block reserves a “Thinking…” line so the layout does not jump when the first delta arrives.
 - Money uses `tr-TR` / TRY formatting. Display strings that we case-fold use a locale (`en-US` on the status badge) so a Turkish `i` is not destroyed by a default `toUpperCase()`.
 
-Screen-reader behaviour beyond that (a single polite announcement when a stream settles, naming the gate and the confirmation by role) is the bonus pass. It is not claimed as done.
+## Phone layout
+
+Below 720px the composition flips: chat is the full viewport, Cart / Orders / Audit become a bottom nav, and the active shell panel opens as a bottom sheet. Dismiss by tapping the dimmed area, pressing Escape, or tapping the same tab again. Desktop keeps the three-column rail + sidebar + chat. Safe-area insets are respected on notched devices.
 
 ## Audit inspector
 
@@ -201,18 +205,15 @@ The tests pin the behaviours that move money or paint the wrong turn. They are n
 | Markdown | `security/markdown/SafeMarkdown.test.tsx` | HTML inert, `javascript:` not a link, image `src` not fetched |
 | Clock | `domain/clock/serverClock.test.ts` | Anchor, countdown, Istanbul relative day |
 
-## With more time, and what changes in production
+## Delivery timeline
 
-Scope was cut from the bottom of the spec list. Keyboard behaviour was not cut. The bonus screen-reader script and a phone layout were.
+Client work on `main`: 2026-10-01 → 2026-10-04 (case package imported the day before). Order followed risk: stream, validation, and confirmation before chrome.
 
-Before I would ship this:
+| Day | Date | Shipped |
+|---|---|---|
+| 1 | Oct 1 | Scaffold `client/`: Vite + React + TypeScript, folder skeleton, root `client` scripts. |
+| 2 | Oct 2 | Core path: NDJSON stream + generation guard, API client + `X-Sofra-Now`, Zod fail-closed catalog, confirmation state machine (single in-flight execute, reconcile, supersede), server clock, shell queries + invalidation, SafeMarkdown, chat orchestration (stop / conversation id), audit inspector, keyboard a11y. |
+| 3 | Oct 3 | Chat panel and message list UI; shell and audit layout. |
+| 4 | Oct 4 | Confirmation UX (retry cooldown, states), visual polish, phone layout (bottom nav + sheet), assets, client README. |
 
-1. **Abort the chat fetch on unmount.** User switch remounts the session and clears `conversation_id`, and `clearUser` kills confirmability. A late `meta` from the old request can still call `setConversationId` on the parent, because that setter outlives the chat. An unmount `AbortController.abort()` closes that race. I would not call the user-switch path finished without it.
-2. **Generate the Zod catalog from `schema/` in CI**, and keep `.strict()` plus the explicit “unknown type is skip, invalid confirmation is drop” policy in the generator’s tests. Hand-written schemas are readable for a weekend; they will drift.
-3. **Drop the inert secondary button** until there is a real void, or make “Not now” only collapse the card locally while the countdown still expires the token. A control that looks like a decision and performs none is worse than no control.
-4. **One announcement when a stream settles**, and an accessible name on the confirmation region that includes the action and the total. Token-by-token live regions would be the wrong fix.
-5. **Content-Security-Policy** as a backstop for the markdown policy: no inline script, `img-src` not `*`. The renderer is the control; CSP is the second one.
-6. **Multi-tab.** `inFlight` is per page. Two tabs can both be `LIVE` for one token. The server’s single-use token saves the money (`token_used` → `DONE`); the second tab should learn that from status rather than from a local set. A production client would subscribe to status, or hold a short lock, instead of trusting one memory.
-7. **Persistence.** Refresh drops the transcript and the confirmation store. The server still holds the conversation and the token. I would reload the conversation and re-register only prompts that `GET /api/actions/status` still reports as `live`.
-8. **Clock jumps.** We re-anchor on every `X-Sofra-Now` and every `meta.server_now`, which is what the spec requires after `POST /__admin/clock`. I would ignore a sample that moves backwards by more than a small skew, so a bad header cannot revive an expired token.
-9. **Contract gaps I would ask for, not invent.** A dismiss/void for “Not now”. A stable idempotency key on execute distinct from the confirm token, so the client can retry a lost response without the status dance being the only tool. An explicit `ui_spec` error block when version is unsupported, instead of the client inventing the sentence. None of these are required to meet the current contract, and the client does not pretend they exist.
+Oct 2 is front-loaded on purpose. Money and trust boundaries had to be wrongable in one place before the transcript looked finished.

@@ -73,3 +73,17 @@
   flex-shrink: 0;
   align-self: center;
 }
+
+@media (max-width: 720px) {
+  .form {
+    padding: var(--space-3) var(--space-4) var(--space-3);
+  }
+
+  .hint {
+    font-size: 0.625rem;
+  }
+
+  .field {
+    padding-left: 0.85rem;
+  }
+}

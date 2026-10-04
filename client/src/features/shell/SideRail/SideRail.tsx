@@ -27,7 +27,7 @@ export function SideRail({ active, onChange }: Props) {
   const auditCount = useAuditTurnCount()
 
   return (
-    <nav className={styles.rail} aria-label="Sections">
+    <div className={styles.rail}>
       {TABS.map(({ id, label, Icon }) => {
         const selected = active === id
         const badge =
@@ -55,6 +55,6 @@ export function SideRail({ active, onChange }: Props) {
           </button>
         )
       })}
-    </nav>
+    </div>
   )
 }

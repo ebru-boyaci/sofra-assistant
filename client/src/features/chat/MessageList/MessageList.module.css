@@ -160,3 +160,22 @@
 .retry {
   justify-self: start;
 }
+
+@media (max-width: 720px) {
+  .list {
+    padding: var(--space-4) var(--space-4) var(--space-5);
+    gap: var(--space-4);
+  }
+
+  .emptyWrap {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .user .userText {
+    max-width: min(22rem, 86%);
+  }
+
+  .assistantBody {
+    width: 100%;
+  }
+}

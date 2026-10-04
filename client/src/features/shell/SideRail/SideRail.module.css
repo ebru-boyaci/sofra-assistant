@@ -69,3 +69,33 @@
   line-height: 1rem;
   text-align: center;
 }
+
+@media (max-width: 720px) {
+  .rail {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-around;
+    gap: 0.15rem;
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+  }
+
+  .tab {
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.2rem;
+    min-width: 0;
+    padding: 0.55rem 0.35rem;
+    text-align: center;
+    font-size: var(--text-caption);
+    border-radius: 10px;
+  }
+
+  .iconWrap {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+}

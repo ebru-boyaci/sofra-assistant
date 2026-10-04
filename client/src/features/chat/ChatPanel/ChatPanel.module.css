@@ -55,3 +55,17 @@
     scroll-behavior: auto;
   }
 }
+
+@media (max-width: 720px) {
+  .header {
+    padding: var(--space-2) var(--space-4);
+  }
+
+  .meta {
+    display: none;
+  }
+
+  .title {
+    font-size: 1.05rem;
+  }
+}
