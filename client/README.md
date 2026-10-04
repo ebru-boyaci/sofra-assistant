@@ -4,6 +4,17 @@ React + TypeScript client for the Sofra assistant. It speaks the contract in the
 
 The mock is the source of truth for money, eligibility, and whether an action ran. This client streams UI, refuses to draw anything it cannot validate, and treats confirmation as a state machine that can fire at most once.
 
+## Demo (rows 4–9)
+
+Screen recordings of the confirmation lifecycle. Folder is shared “anyone with the link”.
+
+- All: [Sofra confirmation demo (rows 4–9)](https://drive.google.com/drive/folders/19LArOO-YnvpztTT6eHrAifIyHtDiIynX?usp=drive_link)
+- 4–5 place order and confirm: [folder](https://drive.google.com/drive/folders/1CxEDJYVh72lx68qCSyunzln8qXMbrMHT?usp=drive_link)
+- 6 double-click, single execute: [folder](https://drive.google.com/drive/folders/18GbAuUiIfAaiwEY8l574eOOAFYcFI2GT?usp=drive_link)
+- 7 supersede (“make it 5”): [folder](https://drive.google.com/drive/folders/1PEm4oY4N_lJRKEW6RP0vNPGnNMHFJScP?usp=drive_link)
+- 8 short TTL expiry: [folder](https://drive.google.com/drive/folders/1Lq-kgU-Jx4lxB97nHZo0RPB5I7xgKuNG?usp=drive_link)
+- 9 tip + drop execute, reconcile: [folder](https://drive.google.com/drive/folders/1gegT3tIDtNTGjuQU3HYPkEX-mObM_NiZ?usp=drive_link)
+
 ## Run
 
 From the repository root, two terminals:
@@ -144,7 +155,7 @@ Exactly once:
 
 The card stays on screen after `DONE` (“Confirmed”) and renders the execute `nextBlocks` under it. `cancel_order` uses a destructive treatment (copy, border) so it is not the same object as place-order. A `verification_gate` is a different component: “Blocked — nothing executed”, no confirm control, requirement shown as text rather than colour.
 
-The secondary control (“Not now” / “Keep order”) does not call the server. The contract has no dismiss endpoint, and a client-only hide would leave a live token. The control is disabled together with Confirm once the prompt is no longer `LIVE`. I would rather omit it than imply a void we cannot perform; see production notes.
+The secondary control (“Not now” / “Keep order”) does not call the server. The contract has no dismiss endpoint, and a client-only hide would leave a live token. The control is disabled together with Confirm once the prompt is no longer `LIVE`. I would rather omit it than imply a void we cannot perform; see below.
 
 ## Untrusted content
 
@@ -257,3 +268,11 @@ Client work on `main`: 2026-10-01 → 2026-10-04 (case package imported the day 
 | 4 | Oct 4 | Confirmation UX, visual polish, phone layout, Sources / Help / SR announcements, Storybook workbench, assets, client README. |
 
 Oct 2 is front-loaded on purpose. Money and trust boundaries had to be wrongable in one place before the transcript looked finished.
+
+## What I would do with more time / production
+
+- Generate the Zod catalog from `schema/ui_spec.schema.json` in CI so hand-written schemas cannot drift, and keep `.strict()` as the generated default.
+- Add a real dismiss/void path for the secondary confirmation control (or remove the control) once the contract exposes one; until then it must not pretend to cancel a live token.
+- Restore conversations after reload via `GET /api/conversations/:id` and rehydrate pending prompts only through `GET /api/actions/status`, never from `localStorage`.
+- Playwright (or similar) against the scenario table and `/__admin/ledger`, especially rows 4–9, 17, and 20–22.
+- Window the transcript before hundreds of block-heavy turns; lazy-load markdown and the audit inspector if the catalog or KB surface grows.
