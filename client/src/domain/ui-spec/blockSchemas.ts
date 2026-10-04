@@ -141,16 +141,16 @@ export const AuditDecisionSchema = z.enum([
   'unknown',
 ])
 
-export const AuditSchema = z
-  .object({
-    decision: AuditDecisionSchema,
-    reason: z.string().optional(),
-    user_id: z.string().optional(),
-    intent: z.string().optional(),
-    tools_called: z.array(z.string()).optional(),
-    kb_doc_ids: z.array(z.string()).optional(),
-  })
-  .strict()
+// Unlike blocks, the contract leaves audit open (no additionalProperties:false).
+// Unknown keys are stripped so a new server field cannot sink the response.
+export const AuditSchema = z.object({
+  decision: AuditDecisionSchema,
+  reason: z.string().optional(),
+  user_id: z.string().optional(),
+  intent: z.string().optional(),
+  tools_called: z.array(z.string()).optional(),
+  kb_doc_ids: z.array(z.string()).optional(),
+})
 
 export const UiSpecDocumentSchema = z
   .object({

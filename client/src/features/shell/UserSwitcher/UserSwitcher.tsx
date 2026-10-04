@@ -1,7 +1,9 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { MOCK_USERS, type UserId } from '@/shared/users'
+import type { UserId } from '@/shared/users'
 import { ChevronDownIcon, UserIcon } from '@/shared/ui'
 import pill from '../HeaderPill.module.css'
+import { useShellUser, useShellUsers } from '../useShellQueries'
+import { personaMeta, resolvePersona } from './resolvePersona'
 import styles from './UserSwitcher.module.css'
 
 type Props = {
@@ -13,7 +15,15 @@ export function UserSwitcher({ value, onChange }: Props) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const listId = useId()
-  const current = MOCK_USERS.find((u) => u.id === value) ?? MOCK_USERS[0]
+  const users = useShellUsers()
+  const detail = useShellUser()
+  const persona = resolvePersona(value, detail, users)
+  const ariaLabel =
+    persona.kind === 'ready'
+      ? `Persona: ${persona.name}, ${persona.meta}`
+      : persona.kind === 'loading'
+        ? 'Persona: loading'
+        : `Persona: ${persona.id}${persona.meta ? `, ${persona.meta}` : ''}`
 
   useEffect(() => {
     if (!open) return
@@ -39,14 +49,27 @@ export function UserSwitcher({ value, onChange }: Props) {
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={listId}
-        aria-label={`Persona: ${current.name}, ${current.role}`}
-        onClick={() => setOpen((v) => !v)}
+        aria-label={ariaLabel}
+        aria-busy={persona.kind === 'loading'}
+        onClick={() => {
+          if (!open && users.isError) void users.refetch()
+          setOpen((v) => !v)
+        }}
       >
         <UserIcon className={pill.icon} />
-        <span className={pill.stack}>
-          <span className={pill.primary}>{current.name}</span>
-          <span className={`${pill.meta} ${styles.role}`}>{current.role}</span>
-        </span>
+        {persona.kind === 'loading' ? (
+          <span className={pill.stack} aria-hidden="true">
+            <span className={`${styles.placeholder} ${styles.placeholderName}`} />
+            <span className={`${styles.placeholder} ${styles.placeholderMeta}`} />
+          </span>
+        ) : (
+          <span className={pill.stack}>
+            <span className={pill.primary}>
+              {persona.kind === 'ready' ? persona.name : persona.id}
+            </span>
+            <span className={`${pill.meta} ${styles.role}`}>{persona.meta}</span>
+          </span>
+        )}
         <ChevronDownIcon className={pill.chevron} />
       </button>
 
@@ -57,7 +80,16 @@ export function UserSwitcher({ value, onChange }: Props) {
           role="listbox"
           aria-label="Switch user"
         >
-          {MOCK_USERS.map((user) => {
+          {users.isPending || (users.isError && users.isFetching) ? (
+            <li role="option" aria-disabled="true" aria-selected={false} className={styles.status}>
+              Loading users…
+            </li>
+          ) : users.isError ? (
+            <li role="option" aria-disabled="true" aria-selected={false} className={styles.status}>
+              Couldn’t load users. Close and reopen to retry.
+            </li>
+          ) : null}
+          {users.data?.map((user) => {
             const selected = user.id === value
             return (
               <li key={user.id} role="presentation">
@@ -71,8 +103,8 @@ export function UserSwitcher({ value, onChange }: Props) {
                     setOpen(false)
                   }}
                 >
-                  <span className={styles.optionName}>{user.name}</span>
-                  <span className={styles.optionMeta}>{user.role}</span>
+                  <span className={styles.optionName}>{user.display_name}</span>
+                  <span className={styles.optionMeta}>{personaMeta(user)}</span>
                 </button>
               </li>
             )

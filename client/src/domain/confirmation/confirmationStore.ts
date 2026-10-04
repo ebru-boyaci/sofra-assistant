@@ -1,6 +1,5 @@
 import { parseUiSpecDocument } from '@/domain/ui-spec'
 import type { ConfirmationPromptBlock, TrustedBlock } from '@/domain/ui-spec'
-import type { ActionStatusResponse, ExecuteResponse } from '@/infrastructure/api'
 import {
   canStartConfirm,
   isExpiredAt,
@@ -11,6 +10,7 @@ import {
 import type {
   ConfirmationEntry,
   ConfirmationView,
+  ExecuteOutcomeInput,
   StatusOutcomeInput,
 } from './types'
 
@@ -21,8 +21,8 @@ export type ConfirmationStoreDeps = {
     action: string
     params: Record<string, unknown>
     confirm_token: string
-  }) => Promise<ExecuteResponse>
-  getStatus: (confirmToken: string) => Promise<ActionStatusResponse>
+  }) => Promise<ExecuteOutcomeInput>
+  getStatus: (confirmToken: string) => Promise<StatusOutcomeInput>
   isTransportError: (error: unknown) => boolean
   onDone?: (entry: ConfirmationEntry) => void
   wait?: (ms: number) => Promise<void>
@@ -178,7 +178,7 @@ export function createConfirmationStore(deps: ConfirmationStoreDeps) {
 
   function applyExecuteResponse(
     entry: ConfirmationEntry,
-    response: ExecuteResponse,
+    response: ExecuteOutcomeInput,
   ): void {
     const code = extractErrorCode(response.body)
     const nextStatus = statusAfterExecuteHttp(response.httpStatus, code)

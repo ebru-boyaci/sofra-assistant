@@ -71,7 +71,7 @@ export async function streamChat(params: ChatStreamParams): Promise<AssembledStr
       throw new TransportError('Chat request failed', cause)
     }
 
-    captureSofraNow(res)
+    let clockSynced = captureSofraNow(res)
 
     if (!res.ok) {
       session.abort()
@@ -116,7 +116,10 @@ export async function streamChat(params: ChatStreamParams): Promise<AssembledStr
           sawChunk = true
           turn.push(value)
           const snap = turn.getSnapshot()
-          if (snap.serverNow) syncServerClock(snap.serverNow)
+          if (!clockSynced && snap.serverNow) {
+            syncServerClock(snap.serverNow)
+            clockSynced = true
+          }
           onUpdate?.(snap)
         }
       }

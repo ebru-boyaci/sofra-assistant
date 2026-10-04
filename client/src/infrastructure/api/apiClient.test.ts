@@ -192,7 +192,80 @@ describe('streamChat', () => {
     })
   }
 
-  it('streams NDJSON into the session and syncs server_now from meta', async () => {
+  function slowStream(lines: unknown[], advance: () => void): ReadableStream<Uint8Array> {
+    const enc = new TextEncoder()
+    let i = 0
+    return new ReadableStream(
+      {
+        pull(controller) {
+          if (i > 0) advance()
+          if (i >= lines.length) {
+            controller.close()
+            return
+          }
+          controller.enqueue(enc.encode(JSON.stringify(lines[i]) + '\n'))
+          i += 1
+        },
+      },
+      { highWaterMark: 0 },
+    )
+  }
+
+  const slowTurn = [
+    {
+      seq: 1,
+      event: 'meta',
+      version: '1',
+      request_id: 'rq_slow',
+      conversation_id: 'cv_slow',
+      server_now: '2026-08-20T09:00:00.000Z',
+    },
+    { seq: 2, event: 'block', index: 0, block: { type: 'text', markdown: '' } },
+    { seq: 3, event: 'text_delta', index: 0, delta: 'Hi' },
+    { seq: 4, event: 'done' },
+  ]
+
+  it('a slow stream does not drag the server clock back to meta.server_now', async () => {
+    let perfMs = 0
+    vi.spyOn(performance, 'now').mockImplementation(() => perfMs)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        new Response(slowStream(slowTurn, () => (perfMs += 1000)), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/x-ndjson',
+            'X-Sofra-Now': '2026-08-20T09:00:00.000Z',
+          },
+        }),
+      ),
+    )
+
+    await streamChat({ userId: 'u_ok', message: 'x', session: createStreamSession() })
+
+    expect(perfMs).toBe(4000)
+    expect(getServerNowMs()).toBe(Date.parse('2026-08-20T09:00:04.000Z'))
+  })
+
+  it('without X-Sofra-Now, meta.server_now is used once, when it arrives', async () => {
+    let perfMs = 0
+    vi.spyOn(performance, 'now').mockImplementation(() => perfMs)
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        new Response(slowStream(slowTurn, () => (perfMs += 1000)), {
+          status: 200,
+          headers: { 'Content-Type': 'application/x-ndjson' },
+        }),
+      ),
+    )
+
+    await streamChat({ userId: 'u_ok', message: 'x', session: createStreamSession() })
+
+    expect(getServerNowMs()).toBe(Date.parse('2026-08-20T09:00:04.000Z'))
+  })
+
+  it('streams NDJSON into the session', async () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async (_url: RequestInfo | URL, init?: RequestInit) => {

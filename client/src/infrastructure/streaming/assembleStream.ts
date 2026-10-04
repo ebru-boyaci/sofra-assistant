@@ -5,7 +5,6 @@ import {
 } from './streamTypes'
 
 export function createEmptyAssembly(): AssembledStream {
-  // Blank page. Still arriving.
   return {
     status: 'streaming',
     version: null,
@@ -23,7 +22,6 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export function parseStreamEvent(raw: unknown): StreamEvent | null {
-  // null = bad line. The page is left unchanged.
   if (!isRecord(raw)) return null
   const seq = raw.seq
   const event = raw.event
@@ -98,10 +96,11 @@ export function applyStreamEvent(
   const event = parseStreamEvent(raw)
   if (!event) return state
 
-  if (seenSeqs.has(event.seq)) return state // same seq again: keep the first
+  // Delivery is at-least-once and seq is strictly increasing, so a seq we have
+  // already applied is a redelivery, never a new event.
+  if (seenSeqs.has(event.seq)) return state
   seenSeqs.add(event.seq)
 
-  // Already finished: later lines do not change the page.
   if (
     state.status === 'complete' ||
     state.status === 'error' ||
@@ -112,7 +111,6 @@ export function applyStreamEvent(
 
   switch (event.event) {
     case 'meta': {
-      // Only version "1" is drawn.
       if (event.version !== SUPPORTED_UI_VERSION) {
         return {
           ...state,
@@ -133,14 +131,14 @@ export function applyStreamEvent(
     }
     case 'block': {
       const blocks = state.blocks.slice()
-      while (blocks.length <= event.index) blocks.push(undefined) // empty slots up to index
-      blocks[event.index] = { ...event.block } // put the card on that shelf
+      while (blocks.length <= event.index) blocks.push(undefined)
+      blocks[event.index] = { ...event.block }
       return { ...state, blocks }
     }
     case 'text_delta': {
       const blocks = state.blocks.slice()
       const current = blocks[event.index]
-      if (!current || current.type !== 'text') return state // only text cards grow
+      if (!current || current.type !== 'text') return state
       const markdown =
         typeof current.markdown === 'string' ? current.markdown : ''
       blocks[event.index] = { ...current, markdown: markdown + event.delta }
@@ -166,7 +164,6 @@ export function applyStreamEvent(
 }
 
 export function markIncompleteIfNeeded(state: AssembledStream): AssembledStream {
-  // Body ended and "done" never came.
   if (state.status === 'streaming') {
     return { ...state, status: 'incomplete' }
   }

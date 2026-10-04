@@ -7,9 +7,11 @@ export type JsonRequestInit = Omit<RequestInit, 'body'> & {
   body?: unknown
 }
 
-function captureSofraNow(res: Response): void {
+function captureSofraNow(res: Response): boolean {
   const header = res.headers.get(SOFRA_NOW_HEADER)
-  if (header) syncServerClock(header)
+  if (!header) return false
+  syncServerClock(header)
+  return true
 }
 
 async function readErrorBody(res: Response): Promise<{ code: string; message: string }> {

@@ -1,6 +1,6 @@
 export { Button, type ButtonVariant } from './Button'
 export { Chip } from './Chip'
-export { EmptyState } from './EmptyState/EmptyState'
+export { EmptyState } from './EmptyState'
 export { Select, TextArea } from './Field'
 export {
   AlertIcon,
@@ -18,5 +18,5 @@ export {
   UserIcon,
   WalletIcon,
 } from './Icon'
-export { Skeleton } from './Skeleton/Skeleton'
+export { Skeleton } from './Skeleton'
 export { StatusBadge, type StatusTone } from './StatusBadge'

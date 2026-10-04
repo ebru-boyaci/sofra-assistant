@@ -146,6 +146,26 @@ describe('parseUiSpecDocument', () => {
     expect(result.ok).toBe(false)
   })
 
+  it('accepts unknown audit keys (open in the contract) and strips them', () => {
+    const result = parseUiSpecDocument({
+      version: '1',
+      blocks: [{ type: 'text', markdown: 'ok' }],
+      audit: { decision: 'answered', latency_ms: 42 },
+    })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.audit).toEqual({ decision: 'answered' })
+  })
+
+  it('still fails the document when a typed audit field is wrong', () => {
+    const result = parseUiSpecDocument({
+      version: '1',
+      blocks: [{ type: 'text', markdown: 'ok' }],
+      audit: { decision: 'maybe' },
+    })
+    expect(result.ok).toBe(false)
+  })
+
   it('keeps audit kb_doc_ids when present', () => {
     const result = parseUiSpecDocument({
       version: '1',

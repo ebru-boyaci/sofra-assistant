@@ -1,16 +1,15 @@
 export type NdjsonParser = {
-  push: (chunk: Uint8Array) => void // feed one chunk
-  end: () => void // stream finished
+  push: (chunk: Uint8Array) => void
+  end: () => void
 }
 
 export function createNdjsonParser(
-  onEvent: (value: unknown) => void, // a full line parsed OK
+  onEvent: (value: unknown) => void,
   onMalformedLine?: (line: string, error: unknown) => void,
 ): NdjsonParser {
   const decoder = new TextDecoder('utf-8')
-  let lineBuffer = '' // text still waiting for a newline
+  let lineBuffer = ''
 
-  // Hand every finished line to onEvent. Keep the tail that has no \n yet.
   const consumeCompleteLines = () => {
     let newlineAt = lineBuffer.indexOf('\n')
     while (newlineAt !== -1) {
@@ -29,12 +28,13 @@ export function createNdjsonParser(
 
   return {
     push(chunk: Uint8Array) {
-      // stream: true holds a letter cut in half for the next chunk
+      // Chunks can end inside a multi-byte character; stream: true holds the
+      // partial bytes until the next chunk instead of emitting U+FFFD.
       lineBuffer += decoder.decode(chunk, { stream: true })
       consumeCompleteLines()
     },
     end() {
-      lineBuffer += decoder.decode() // write any held letter
+      lineBuffer += decoder.decode()
       consumeCompleteLines()
       lineBuffer = ''
     },

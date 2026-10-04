@@ -57,3 +57,38 @@
   font-size: var(--text-meta);
   color: var(--muted);
 }
+
+.placeholder {
+  display: block;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    90deg,
+    var(--border) 0%,
+    var(--surface-muted) 50%,
+    var(--border) 100%
+  );
+  background-size: 200% 100%;
+  animation: sofra-pulse 1.2s ease-in-out infinite;
+}
+
+.placeholderName {
+  width: 7.5rem;
+  height: calc(var(--text-body) * 1.15);
+}
+
+.placeholderMeta {
+  width: 4.5rem;
+  height: calc(var(--text-meta) * 1.15);
+}
+
+@media (max-width: 720px) {
+  .placeholderMeta {
+    display: none;
+  }
+}
+
+.status {
+  padding: 0.6rem 0.75rem;
+  font-size: var(--text-meta);
+  color: var(--muted);
+}

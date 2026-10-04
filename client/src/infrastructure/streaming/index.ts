@@ -1,4 +1,3 @@
-// Re-exports only. Import streaming from here.
 export { createNdjsonParser } from './ndjsonParser'
 export {
   applyStreamEvent,

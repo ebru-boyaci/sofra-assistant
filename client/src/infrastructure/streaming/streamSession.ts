@@ -3,21 +3,23 @@ import { createNdjsonParser } from './ndjsonParser'
 import type { AssembledStream } from './streamTypes'
 
 export type StreamTurnHandle = {
-  readonly generation: number // this turn's id
-  push: (chunk: Uint8Array) => void // feed one chunk
-  finish: () => AssembledStream // body ended
+  readonly generation: number
+  push: (chunk: Uint8Array) => void
+  finish: () => AssembledStream
   getSnapshot: () => AssembledStream
   isCurrent: () => boolean
 }
 
-// One chat turn. A newer turn stops the old one from writing.
+// Every beginTurn() and abort() bumps the generation. A handle from an older
+// generation can no longer write, so a stopped or replaced stream never lands
+// in the next turn.
 export function createStreamSession() {
-  let generation = 0 // current turn id
+  let generation = 0
   let assembly = createEmptyAssembly()
-  let seenSeqs = new Set<number>() // seqs already applied this turn
+  let seenSeqs = new Set<number>()
 
   const bump = () => {
-    generation += 1 // old chunks are ignored after this
+    generation += 1
     assembly = createEmptyAssembly()
     seenSeqs = new Set()
     return generation
@@ -27,20 +29,20 @@ export function createStreamSession() {
     beginTurn(): StreamTurnHandle {
       const gen = bump()
       const parser = createNdjsonParser((value) => {
-        if (gen !== generation) return // stale turn
+        if (gen !== generation) return
         assembly = applyStreamEvent(assembly, value, seenSeqs)
       })
 
       return {
         generation: gen,
         push(chunk: Uint8Array) {
-          if (gen !== generation) return // stale turn
+          if (gen !== generation) return
           parser.push(chunk)
         },
         finish() {
           if (gen !== generation) return assembly
           parser.end()
-          assembly = markIncompleteIfNeeded(assembly) // no done -> incomplete
+          assembly = markIncompleteIfNeeded(assembly)
           return assembly
         },
         getSnapshot() {
@@ -53,7 +55,7 @@ export function createStreamSession() {
     },
 
     abort() {
-      bump() // stop the in-flight turn
+      bump()
     },
 
     get generation() {

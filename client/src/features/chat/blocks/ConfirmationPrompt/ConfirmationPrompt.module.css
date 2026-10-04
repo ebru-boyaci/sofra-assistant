@@ -315,20 +315,12 @@
 
 .actions {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
   gap: var(--space-2);
 }
 
-.cancelBtn,
 .confirmBtn {
   width: 100%;
   border-radius: var(--radius-pill);
-}
-
-.cancelBtn {
-  border-color: var(--border-strong);
-  color: var(--text);
-  font-weight: var(--weight-emphasis);
 }
 
 .hint {
@@ -336,10 +328,4 @@
   font-size: var(--chat-meta-size);
   line-height: var(--chat-lh);
   color: var(--chat-meta-color);
-}
-
-@media (max-width: 420px) {
-  .actions {
-    grid-template-columns: 1fr;
-  }
 }

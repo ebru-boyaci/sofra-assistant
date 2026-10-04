@@ -54,21 +54,23 @@ React renders the result of those decisions. It does not make them.
 
 ```
 app            providers, shell layout
-features       chat, confirmation UI, shell, audit inspector, help center
+features       chat, confirmation UI, shell, audit inspector, help center, workbench
 domain         ui-spec, confirmation store, server clock
 infrastructure NDJSON session, fetch, execute/status
 security       markdown policy
 shared         user context, money formatting, primitives
 ```
 
-UI lives under `features/`. Confirmation lifecycle, block validation, and the server clock live under `domain/`. Features depend on `domain`, `infrastructure`, `security`, and `shared`; domain does not import from features or React UI. A component can ask a store or a parse result; it should not invent eligibility, expiry, or “did this execute?”.
+UI lives under `features/`. Confirmation lifecycle, block validation, and the server clock live under `domain/`. Features depend on `domain`, `infrastructure`, `security`, and `shared`; domain does not import from infrastructure, features or React UI. The confirmation store declares the execute/status shapes it needs; `ConfirmationProvider` wires the HTTP client into them. A component can ask a store or a parse result; it should not invent eligibility, expiry, or “did this execute?”.
 
 Four pieces of state, on purpose:
 
 1. **Chat turns** live in `useChatController`. A turn is a user line plus an assistant record: transport status, trusted blocks, validation failures, and the parsed audit record. The transcript is not derived from the raw stream.
 2. **Confirmations** live in a store outside React (`createConfirmationStore`), subscribed with `useSyncExternalStore`. The store is the only caller of `POST /api/actions/execute`. The button asks the store to confirm a token; it does not call fetch.
-3. **The server clock** is a module anchor: last `server_now` (or `X-Sofra-Now`) plus `performance.now()` elapsed since that sample. Expiry and relative dates never use `Date.now()`. The mock’s today is 2026-08-20 in Europe/Istanbul; the laptop clock would expire every prompt on sight.
+3. **The server clock** is a module anchor: the last server sample plus `performance.now()` elapsed since it arrived. Every REST response re-anchors from `X-Sofra-Now`. A chat stream anchors from its `X-Sofra-Now` header, which is stamped and flushed when the response starts; `meta.server_now` carries the same instant but arrives after the mock's pre-body delay (0.15–4 s), so it is used only when the header is missing, and only once. Re-anchoring on it per chunk would leave the clock behind by the whole stream duration (~3 s for row 4, ~11 s under `slow`). Expiry and relative dates never use `Date.now()`. The mock’s today is 2026-08-20 in Europe/Istanbul; the laptop clock would expire every prompt on sight.
 4. **The shell** (wallet, cart, orders) is React Query, keyed by user id. Chat blocks are not a cache of those resources. After a successful execute, or after status reconciliation says the token was used, the store’s `onDone` invalidates user, cart, and orders for that user. The header moves 800 → 410 without a reload because the shell refetches, not because the client subtracts.
+
+The user switcher lists users from `GET /api/users`. The pill shows `display_name` as the server sends it, with a short persona label under it for the four case ids (Standard, Age unverified, Low balance, New user) and the server’s `district` for anyone else. The name comes from the detail query the header already fetched, or from the list while a fresh detail is still loading, so a switch never flashes a raw id (`resolvePersona`). The opening selection is `u_ok` until the reviewer picks another id.
 
 Switching user remounts the chat (`ChatSessionProvider key={userId}`), clears `conversation_id`, and marks that user’s live prompts `SUPERSEDED`. The next message starts a new conversation. The old token is not confirmable (`sc_24`).
 
@@ -117,23 +119,21 @@ Rules, in order:
 
 Empty index slots (a `text_delta` or a hole before its `block`) are dropped before this parse. Prices, fees, and `meets_minimum` are displayed as sent. The client does not add line items or invent a delivery fee.
 
-Audit is parsed with the same strictness. A structurally invalid audit is omitted from the inspector; it does not sink the blocks that already validated. Validation failures for the turn are listed beside the audit record.
+Audit follows the schema too, and the schema leaves it open (no `additionalProperties: false`), so unknown audit keys are stripped rather than rejected; a wrong `decision` still fails. A structurally invalid audit is omitted from the inspector; it does not sink the blocks that already validated. Validation failures for the turn are listed beside the audit record.
 
 ## Confirmation lifecycle
 
-States: `LIVE → CONFIRMING → DONE`, and the exits `EXPIRED`, `SUPERSEDED`, `REJECTED`, `RECONCILING`.
+States: `LIVE → CONFIRMING → DONE`, the transient `RECONCILING`, and the exits `EXPIRED`, `SUPERSEDED`, `REJECTED`.
 
 ```mermaid
 stateDiagram-v2
   [*] --> LIVE: valid prompt registered
   LIVE --> EXPIRED: server clock passes expires_at
-  LIVE --> SUPERSEDED: newer prompt, same user and action
-  LIVE --> SUPERSEDED: user switch
   LIVE --> CONFIRMING: one deliberate click
   CONFIRMING --> DONE: 2xx, or 409 token_used
-  CONFIRMING --> EXPIRED: 410 token_expired
+  CONFIRMING --> EXPIRED: 410 or token_expired
   CONFIRMING --> SUPERSEDED: 409 superseded or void
-  CONFIRMING --> REJECTED: any other HTTP error
+  CONFIRMING --> REJECTED: any other failure that is not a transport error
   CONFIRMING --> RECONCILING: transport died, no response
   RECONCILING --> RECONCILING: status lookup failed, retry with backoff
   RECONCILING --> DONE: status used
@@ -141,6 +141,9 @@ stateDiagram-v2
   RECONCILING --> SUPERSEDED: status superseded or void
   RECONCILING --> LIVE: status still live
   RECONCILING --> REJECTED: status invalid
+  LIVE --> SUPERSEDED: retired — newer prompt for the same user and action, or a user switch
+  CONFIRMING --> SUPERSEDED: retired — newer prompt for the same user and action, or a user switch
+  RECONCILING --> SUPERSEDED: retired — newer prompt for the same user and action, or a user switch
   DONE --> [*]
 ```
 
@@ -150,13 +153,13 @@ Exactly once:
 - The Confirm control is `<button type="button">`. It is not focused when the prompt appears. Enter in the composer submits the form that sends a chat message. The hint under the composer says so. There is no path from that key to `confirm()`.
 - A newer prompt for the same user and action marks older `LIVE` / `CONFIRMING` / `RECONCILING` entries `SUPERSEDED` before the new one is stored. The old button disables. The ledger should show zero attempts with the old token.
 - `token_used` (409 after a duplicate that still raced) is `DONE`, not an error. The UI does not say “already used” after a success.
-- A dropped execute response is `TransportError`. The store reconciles with `GET /api/actions/status` and does not ask for a second approval. `used` becomes `DONE` and renders `nextBlocks` from the status result, so a tip that actually landed is shown as landed (`drop_execute_response`). If the status lookup itself fails, it is retried with backoff (1s, 2s, 4s, 8s, then every 10s) and the card says when the next check runs. Status reads are safe to repeat; execute is never repeated. The loop stops as soon as the prompt is retired locally (superseded, user switch).
+- A dropped execute response is `TransportError`. The store reconciles with `GET /api/actions/status` and does not ask for a second approval. `used` becomes `DONE` and renders `nextBlocks` from the status result, so a tip that actually landed is shown as landed (`drop_execute_response`). If the status lookup itself fails, it is retried with backoff (1s, 2s, 4s, 8s, then every 10s) and the card says when the next check runs. Status reads are safe to repeat; execute is never repeated. The retry loop stops as soon as the prompt is retired locally (superseded, user switch).
 - A 410 body can carry a fresh `confirmation_prompt`. Follow-up prompts inside a parsed execute body are registered. The expired card stays inert; the new one is the only live control.
 - Expiry is evaluated against the server clock on a 1s tick and again at the start of `confirm()`. Without a clock sample, `canStartConfirm` is false. We do not guess with the laptop clock.
 
 The card stays on screen after `DONE` (“Confirmed”) and renders the execute `nextBlocks` under it. `cancel_order` uses a destructive treatment (copy, border) so it is not the same object as place-order. A `verification_gate` is a different component: “Blocked — nothing executed”, no confirm control, requirement shown as text rather than colour.
 
-The secondary control (“Not now” / “Keep order”) does not call the server. The contract has no dismiss endpoint, and a client-only hide would leave a live token. The control is disabled together with Confirm once the prompt is no longer `LIVE`. I would rather omit it than imply a void we cannot perform; see below.
+There is no “Not now” / “Keep order” control. The contract has no way to decline a prompt, and a client-only dismiss would hide a token that is still live on the server. Not confirming is the decline: the prompt expires or is replaced. See “Contract changes I would propose”.
 
 ## Untrusted content
 
@@ -171,7 +174,7 @@ The secondary control (“Not now” / “Keep order”) does not call the serve
 
 `react-markdown` will pass raw HTML through if `rehype-raw` is added later. It is not a dependency, and the image override ignores `src` so a future default change does not start fetching. `sc_17` (`html_in_note`, `javascript_link`, `remote_image`) is required to leave `security_beacons === 0`.
 
-Suggested-action chips only call `send()` with the chip string. They cannot execute an action.
+Suggested-action chips only call `send()` with the chip string. They cannot execute an action. The cart’s **Place order** button is the same kind of control: it sends a chat message, and it is disabled while a turn is in flight or while that user already has a `LIVE` / `CONFIRMING` / `RECONCILING` prompt, so the shell cannot stack a second live token next to one the user has not answered.
 
 ## Accessibility
 
@@ -210,7 +213,7 @@ Below 720px the composition flips: chat is the full viewport, Cart / Orders / Au
 
 ## Performance
 
-The transcript is not virtualised. Scenario-length chats stay fine; hundreds of block-heavy turns would want windowing before anything else. Streaming cost is mostly layout, not parse: bytes assemble outside React, Zod runs on settled slots, and an empty text block keeps a “Thinking…” row so the first `text_delta` does not shove the composer. We do not re-announce every token. Production build is ~532 kB JS (~160 kB gzip); most of that is React + `react-markdown`. If the catalog grew, lazy-loading the markdown path and the audit inspector would be the first cuts.
+The transcript is not virtualised. Scenario-length chats stay fine; hundreds of block-heavy turns would want windowing before anything else. Streaming cost is mostly layout, not parse: bytes assemble outside React, Zod runs on settled slots, and an empty text block keeps a “Thinking…” row so the first `text_delta` does not shove the composer. We do not re-announce every token. Production build is ~543 kB JS (~163 kB gzip) plus ~50 kB CSS (~9 kB gzip); most of the JS is React + `react-markdown`. If the catalog grew, lazy-loading the markdown path and the audit inspector would be the first cuts.
 
 ## Audit inspector
 
@@ -243,7 +246,7 @@ The shell **Help** tab searches `GET /api/kb/search` (paginated). Results reuse 
 - `token_used` is success. Showing an error there would punish the user for a duplicate we already tried to prevent.
 - 429 is user-paced. Auto-retry would hide the `Retry-After` window and make a second attempt easy to fire early.
 - Relative dates (“today”, “2 days ago”) use the server’s Istanbul calendar day, not the browser timezone.
-- The secondary confirmation button is not a void. See the lifecycle section.
+- A prompt has a single control, Confirm. Without a void endpoint, a decline button could only pretend; see the lifecycle section.
 
 ## Tests
 
@@ -256,6 +259,9 @@ The tests pin the behaviours that move money or paint the wrong turn. They are n
 | Blocks | `domain/ui-spec/uiSpec.test.ts` | Unknown skipped, invalid not rendered, malformed confirmation fail-closed |
 | Markdown | `security/markdown/SafeMarkdown.test.tsx` | HTML inert, `javascript:` not a link, image `src` not fetched |
 | Clock | `domain/clock/serverClock.test.ts` | Anchor, countdown, Istanbul relative day |
+| Chat turns | `features/chat/chatHelpers.test.ts`, `features/chat/settleAnnouncement.test.ts`, `features/chat/confirmationAnnouncement.test.ts` | Stream status becomes turn status, a garbage audit is rejected, one settle line carries action / total / expiry (a tip announces `amount_try`, not the order total), outcome is announced only on a terminal confirmation |
+| Shell | `features/shell/queryKeys.test.ts`, `features/shell/UserSwitcher/resolvePersona.test.ts` | Cache keys scoped per user; the persona pill never shows a raw id while a read is pending, and falls back to `district` without a hint |
+| Sources | `features/audit/Sources/trustHint.test.ts` | Archive tag, legacy title, and missing date become hints; a current dated policy gets none |
 
 ## Delivery timeline
 
@@ -276,7 +282,7 @@ The client speaks the contract as given. These are the places where it had to in
 
 | Gap | What the client does today | Proposed change |
 |---|---|---|
-| No way to decline a prompt | “Not now” never calls the server, so a live token stays live until it expires or is superseded | `POST /api/actions/void { user_id, confirm_token }` → `{ state: "void" }`. The secondary control becomes a real decline, and the ledger can tell “declined” from “ignored”. |
+| No way to decline a prompt | The prompt has no decline control; a live token stays live until it expires or is superseded | `POST /api/actions/void { user_id, confirm_token }` → `{ state: "void" }`. A “Not now” control could then retire the token for real, and the ledger could tell “declined” from “ignored”. |
 | Supersession is implicit | The store infers “replaced” from same user + same action, locally | `confirmation_prompt.supersedes: <confirm_token>?`. The server states which prompt it replaced; the client stops guessing, and a resumed conversation can mark old prompts without asking status for each. |
 | A silent stream and a slow stream look the same | A 2.5s idle timer after the first byte marks the turn incomplete | A `heartbeat` stream event every N seconds while the model is working. No heartbeat for 2N means dead; the timer stops being a client assumption. |
 | Version is refused, not negotiated | `version: "2"` freezes the turn and tells the user plainly | The client sends `Accept-Version: 1` on `POST /api/chat`; the server either answers in v1 or returns `406` before streaming. No half-sent document the client cannot use. |
@@ -291,5 +297,5 @@ I cut two bonus items on purpose: **conversation restore after reload**, and **e
 In production I would also:
 
 - Generate the Zod catalog from `schema/ui_spec.schema.json` in CI so hand-written schemas cannot drift, keeping `.strict()` as the generated default.
-- Add a real dismiss/void for the secondary confirmation control once the contract exposes one; until then it must not pretend to cancel a live token.
+- Add a “Not now” control backed by a real void once the contract exposes one; until then the prompt offers Confirm only.
 - Window the transcript before hundreds of block-heavy turns; lazy-load markdown and the audit inspector if the catalog or KB surface grows.

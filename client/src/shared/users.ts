@@ -1,10 +1,10 @@
-export const MOCK_USERS = [
-  { id: 'u_ok', name: 'Deniz Yılmaz', role: 'Standard' },
-  { id: 'u_unverified', name: 'Mert Demir', role: 'Age unverified' },
-  { id: 'u_lowbalance', name: 'Ece Kaya', role: 'Low balance' },
-  { id: 'u_new', name: 'Zeynep Aydın', role: 'New user' },
-] as const
-
-export type UserId = (typeof MOCK_USERS)[number]['id']
+export type UserId = string
 
 export const DEFAULT_USER_ID: UserId = 'u_ok'
+
+export const PERSONA_HINTS: Readonly<Record<string, string>> = {
+  u_ok: 'Standard',
+  u_unverified: 'Age unverified',
+  u_lowbalance: 'Low balance',
+  u_new: 'New user',
+}

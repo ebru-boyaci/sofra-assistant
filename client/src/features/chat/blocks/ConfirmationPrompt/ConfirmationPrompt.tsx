@@ -89,17 +89,6 @@ function confirmButtonLabel(
   return viewLabel ?? 'Confirm'
 }
 
-function dismissLabel(
-  action: ConfirmationPromptBlock['action'],
-  isExpired: boolean,
-  isSuperseded: boolean,
-): string {
-  if (isExpired) return 'Expired'
-  if (isSuperseded) return 'Replaced'
-  if (action === 'cancel_order') return 'Keep order'
-  return 'Not now'
-}
-
 function paramNumber(
   params: Record<string, unknown>,
   keys: readonly string[],
@@ -172,7 +161,6 @@ export function ConfirmationPrompt({
     isExpired,
     isSuperseded,
   )
-  const secondaryLabel = dismissLabel(block.action, isExpired, isSuperseded)
   const showConfirmMark = status === 'LIVE' && !isBusy && !isExpired && !isSuperseded
   const regionLabel = [
     copy.kicker,
@@ -311,14 +299,6 @@ export function ConfirmationPrompt({
 
         {status !== 'DONE' && (
           <div className={styles.actions}>
-            <Button
-              type="button"
-              variant="secondary"
-              className={styles.cancelBtn}
-              disabled={inactive}
-            >
-              {secondaryLabel}
-            </Button>
             <Button
               type="button"
               variant="primary"

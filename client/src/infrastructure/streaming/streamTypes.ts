@@ -57,22 +57,21 @@ export type StreamEvent =
   | ErrorEvent
 
 export type StreamStatus =
-  | 'streaming' // still arriving
-  | 'complete' // got "done"
-  | 'incomplete' // body ended, no "done"
+  | 'streaming'
+  | 'complete'
+  | 'incomplete'
   | 'error'
-  | 'unsupported_version' // version was not "1"
+  | 'unsupported_version'
 
 export type AssembledStream = {
-  // The page the screen reads.
   status: StreamStatus
   version: string | null
   requestId: string | null
   conversationId: string | null
   serverNow: string | null
-  blocks: Array<Record<string, unknown> | undefined> // cards, in order
+  blocks: Array<Record<string, unknown> | undefined>
   audit: Record<string, unknown> | null
   error: { code: string; message: string; retryable: boolean } | null
 }
 
-export const SUPPORTED_UI_VERSION = '1' // only this version is drawn
+export const SUPPORTED_UI_VERSION = '1'

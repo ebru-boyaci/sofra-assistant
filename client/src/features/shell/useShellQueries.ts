@@ -1,8 +1,15 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { getCart, getOrders, getUser } from '@/infrastructure/api'
+import { getCart, getOrders, getUser, listUsers } from '@/infrastructure/api'
 import { useCurrentUser } from '@/shared/useCurrentUser'
 import { useCallback } from 'react'
 import { shellKeys } from './queryKeys'
+
+export function useShellUsers() {
+  return useQuery({
+    queryKey: shellKeys.users(),
+    queryFn: ({ signal }) => listUsers(signal),
+  })
+}
 
 export function useShellUser() {
   const { userId } = useCurrentUser()
