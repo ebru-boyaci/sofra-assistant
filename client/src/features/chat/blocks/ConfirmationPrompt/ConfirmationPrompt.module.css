@@ -182,6 +182,12 @@
   border: var(--border-width) solid color-mix(in srgb, var(--warning) 28%, transparent);
 }
 
+.walletPaid {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 28%, transparent);
+}
+
 .walletIcon {
   flex-shrink: 0;
   width: 0.95rem;

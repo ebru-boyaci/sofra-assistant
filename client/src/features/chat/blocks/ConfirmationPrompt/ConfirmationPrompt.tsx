@@ -76,9 +76,12 @@ function confirmButtonLabel(
   viewLabel: string | undefined,
   isBusy: boolean,
   isExpired: boolean,
+  isSuperseded: boolean,
 ): string {
   if (isBusy) return viewLabel ?? 'Confirming…'
-  if (isExpired) return viewLabel ?? 'Expired'
+  if (isExpired || status === 'EXPIRED') return 'Expired'
+  if (isSuperseded || status === 'SUPERSEDED') return 'Replaced'
+  if (status === 'REJECTED') return 'Unavailable'
   if (status !== 'LIVE') return viewLabel ?? 'Confirm'
   if (action === 'place_order') return 'Confirm & place order'
   if (action === 'cancel_order') return 'Confirm cancellation'
@@ -86,7 +89,13 @@ function confirmButtonLabel(
   return viewLabel ?? 'Confirm'
 }
 
-function dismissLabel(action: ConfirmationPromptBlock['action']): string {
+function dismissLabel(
+  action: ConfirmationPromptBlock['action'],
+  isExpired: boolean,
+  isSuperseded: boolean,
+): string {
+  if (isExpired) return 'Expired'
+  if (isSuperseded) return 'Replaced'
   if (action === 'cancel_order') return 'Keep order'
   return 'Not now'
 }
@@ -147,7 +156,10 @@ export function ConfirmationPrompt({
     view?.buttonLabel,
     isBusy,
     isExpired,
+    isSuperseded,
   )
+  const secondaryLabel = dismissLabel(block.action, isExpired, isSuperseded)
+  const showConfirmMark = status === 'LIVE' && !isBusy && !isExpired && !isSuperseded
 
   return (
     <section
@@ -197,10 +209,14 @@ export function ConfirmationPrompt({
             )}
 
             {wallet != null && block.action !== 'cancel_order' && (
-              <span className={styles.walletPill}>
+              <span
+                className={`${styles.walletPill}${status === 'DONE' ? ` ${styles.walletPaid}` : ''}`}
+              >
                 <WalletIcon className={styles.walletIcon} />
                 <span className={styles.walletCopy}>
-                  <span className={styles.walletLabel}>Pay with wallet</span>
+                  <span className={styles.walletLabel}>
+                    {status === 'DONE' ? 'Paid' : 'Pay with wallet'}
+                  </span>
                   <span className={styles.walletBalance}>
                     Balance: {formatTry(wallet)}
                   </span>
@@ -260,7 +276,9 @@ export function ConfirmationPrompt({
           <p className={styles.summary}>{block.summary}</p>
         )}
 
-        {view?.countdownLabel != null && view.status === 'LIVE' && (
+        {view?.countdownLabel != null &&
+          view.status === 'LIVE' &&
+          !isExpired && (
           <p className={styles.countdown} aria-live="polite">
             Expires in{' '}
             <span className={styles.countdownValue}>{view.countdownLabel}</span>
@@ -275,7 +293,7 @@ export function ConfirmationPrompt({
               className={styles.cancelBtn}
               disabled={inactive}
             >
-              {dismissLabel(block.action)}
+              {secondaryLabel}
             </Button>
             <Button
               type="button"
@@ -284,7 +302,7 @@ export function ConfirmationPrompt({
               disabled={inactive}
               onClick={() => onConfirm?.(block)}
             >
-              {status === 'LIVE' && !isBusy ? '✓ ' : ''}
+              {showConfirmMark ? '✓ ' : ''}
               {label}
             </Button>
           </div>

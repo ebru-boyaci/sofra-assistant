@@ -38,6 +38,8 @@ export function ChatPanel() {
           onRetry={() => {
             void chat.retryLast()
           }}
+          retryCooldown={chat.rateLimited}
+          retryCooldownSeconds={chat.rateLimitedSeconds}
         />
       </div>
 

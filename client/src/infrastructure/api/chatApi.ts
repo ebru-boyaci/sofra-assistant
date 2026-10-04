@@ -64,10 +64,10 @@ export async function streamChat(params: ChatStreamParams): Promise<AssembledStr
         signal,
       })
     } catch (cause) {
-      session.abort()
-      if (signal?.aborted) {
-        return turn.getSnapshot()
+      if (signal?.aborted || !turn.isCurrent()) {
+        return turn.finish()
       }
+      session.abort()
       throw new TransportError('Chat request failed', cause)
     }
 
@@ -84,25 +84,61 @@ export async function streamChat(params: ChatStreamParams): Promise<AssembledStr
     }
 
     const reader = res.body.getReader()
+    const idleMsAfterChunk = 2500
+    let sawChunk = false
+
+    const readNext = (): Promise<ReadableStreamReadResult<Uint8Array>> => {
+      if (!sawChunk) return reader.read()
+      let timer: ReturnType<typeof setTimeout> | undefined
+      return new Promise((resolve, reject) => {
+        timer = setTimeout(() => {
+          reject(new Error('stream_idle'))
+        }, idleMsAfterChunk)
+        reader.read().then(
+          (result) => {
+            clearTimeout(timer)
+            resolve(result)
+          },
+          (err: unknown) => {
+            clearTimeout(timer)
+            reject(err)
+          },
+        )
+      })
+    }
+
     try {
       while (true) {
         if (!turn.isCurrent()) break
-        const { done, value } = await reader.read()
+        const { done, value } = await readNext()
         if (done) break
         if (value && turn.isCurrent()) {
+          sawChunk = true
           turn.push(value)
           const snap = turn.getSnapshot()
           if (snap.serverNow) syncServerClock(snap.serverNow)
           onUpdate?.(snap)
         }
       }
-    } catch (cause) {
+    } catch {
       if (signal?.aborted || !turn.isCurrent()) {
         return turn.finish()
       }
-      throw new TransportError('Chat stream interrupted', cause)
+      // Abrupt cut / idle after partial: keep what arrived, mark incomplete.
+      try {
+        await reader.cancel()
+      } catch {
+        /* already closed */
+      }
+      const partial = turn.finish()
+      onUpdate?.(partial)
+      return partial
     } finally {
-      reader.releaseLock()
+      try {
+        reader.releaseLock()
+      } catch {
+        /* stream already errored */
+      }
     }
 
     return turn.finish()

@@ -22,6 +22,8 @@ type Props = {
   onConfirm: (block: ConfirmationPromptBlock) => void
   onSuggestedAction: (text: string) => void
   onRetry?: () => void
+  retryCooldown?: boolean
+  retryCooldownSeconds?: number | null
 }
 
 function confirmLayoutKey(
@@ -63,6 +65,8 @@ export function MessageList({
   onConfirm,
   onSuggestedAction,
   onRetry,
+  retryCooldown = false,
+  retryCooldownSeconds = null,
 }: Props) {
   const endRef = useRef<HTMLDivElement>(null)
   const confirmLayout = confirmLayoutKey(turns, getConfirmView)
@@ -144,11 +148,11 @@ export function MessageList({
                   >
                     <span className={styles.statusMark} aria-hidden="true">
                       {turn.status.startsWith('error') ||
-                      turn.status === 'unsupported_version'
+                        turn.status === 'unsupported_version'
                         ? '!'
                         : turn.status === 'rate_limited' ||
-                            turn.status === 'incomplete' ||
-                            turn.status === 'stopped'
+                          turn.status === 'incomplete' ||
+                          turn.status === 'stopped'
                           ? '×'
                           : 'i'}
                     </span>
@@ -166,9 +170,11 @@ export function MessageList({
                     variant="secondary"
                     className={styles.retry}
                     onClick={onRetry}
-                    disabled={turn.status === 'rate_limited'}
+                    disabled={retryCooldown}
                   >
-                    Retry
+                    {retryCooldown && retryCooldownSeconds != null
+                      ? `Retry (${retryCooldownSeconds}s)`
+                      : 'Retry'}
                   </Button>
                 )}
             </div>

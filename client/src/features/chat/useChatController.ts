@@ -44,6 +44,12 @@ export function useChatController(): ChatSessionValue {
     return () => window.clearInterval(id)
   }, [rateLimitedUntil])
 
+  useEffect(() => {
+    if (rateLimitedUntil == null || nowMs === 0) return
+    if (nowMs < rateLimitedUntil) return
+    setPhase((prev) => (prev === 'rate_limited' ? 'idle' : prev))
+  }, [nowMs, rateLimitedUntil])
+
   const patchAssistant = useCallback(
     (id: string, patch: Partial<AssistantTurn>) => {
       setTurns((prev) =>
