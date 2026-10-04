@@ -17,7 +17,13 @@ Screen recordings of the confirmation lifecycle. Folder is shared “anyone with
 
 ## Run
 
-From the repository root, two terminals:
+From the repository root:
+
+```bash
+npm install --prefix client
+```
+
+Then two terminals:
 
 ```bash
 npm start          # mock on http://localhost:4000
@@ -67,7 +73,7 @@ Four pieces of state, on purpose:
 
 1. **Chat turns** live in `useChatController`. A turn is a user line plus an assistant record: transport status, trusted blocks, validation failures, and the parsed audit record. The transcript is not derived from the raw stream.
 2. **Confirmations** live in a store outside React (`createConfirmationStore`), subscribed with `useSyncExternalStore`. The store is the only caller of `POST /api/actions/execute`. The button asks the store to confirm a token; it does not call fetch.
-3. **The server clock** is a module anchor: the last server sample plus `performance.now()` elapsed since it arrived. Every REST response re-anchors from `X-Sofra-Now`. A chat stream anchors from its `X-Sofra-Now` header, which is stamped and flushed when the response starts; `meta.server_now` carries the same instant but arrives after the mock's pre-body delay (0.15–4 s), so it is used only when the header is missing, and only once. Re-anchoring on it per chunk would leave the clock behind by the whole stream duration (~3 s for row 4, ~11 s under `slow`). Expiry and relative dates never use `Date.now()`. The mock’s today is 2026-08-20 in Europe/Istanbul; the laptop clock would expire every prompt on sight.
+3. **The server clock** is a module anchor: the last server sample plus `performance.now()` elapsed since it arrived. REST re-anchors from `X-Sofra-Now`; a chat stream uses that response header (flushed when the body starts). `meta.server_now` is the same instant but arrives after the mock’s pre-body delay, so it is a fallback only when the header is missing — never re-applied per chunk. Expiry and relative dates never use `Date.now()`.
 4. **The shell** (wallet, cart, orders) is React Query, keyed by user id. Chat blocks are not a cache of those resources. After a successful execute, or after status reconciliation says the token was used, the store’s `onDone` invalidates user, cart, and orders for that user. The header moves 800 → 410 without a reload because the shell refetches, not because the client subtracts.
 
 The user switcher lists users from `GET /api/users`. The pill shows `display_name` as the server sends it, with a short persona label under it for the four case ids (Standard, Age unverified, Low balance, New user) and the server’s `district` for anyone else. The name comes from the detail query the header already fetched, or from the list while a fresh detail is still loading, so a switch never flashes a raw id (`resolvePersona`). The opening selection is `u_ok` until the reviewer picks another id.
@@ -93,7 +99,7 @@ Uint8Array
 
 `meta.version` other than `"1"` freezes the assembly as `unsupported_version`. Later events do not render. The user sees a plain refusal, not a half-drawn catalog from a contract we do not implement.
 
-If the body ends while status is still `streaming`, the turn is `incomplete`: whatever arrived stays, with a retry. `drop_mid_stream` destroys the socket; the read throws and we take the same path. If bytes simply stop after the first chunk and the socket stays open, a 2.5s idle timer cancels the reader and marks the turn incomplete. That timer is a client assumption; the spec’s incomplete rule is “no `done`”.
+If the body ends while status is still `streaming`, the turn is `incomplete`: whatever arrived stays, with a retry. `drop_mid_stream` destroys the socket; the read throws and we take the same path. If bytes stop after the first chunk and the socket stays open, a 2.5s idle timer marks the turn incomplete (a client reading of “no `done`” when the socket never closes cleanly — see Assumptions).
 
 HTTP failures never become a fake stream:
 
@@ -155,11 +161,11 @@ Exactly once:
 - `token_used` (409 after a duplicate that still raced) is `DONE`, not an error. The UI does not say “already used” after a success.
 - A dropped execute response is `TransportError`. The store reconciles with `GET /api/actions/status` and does not ask for a second approval. `used` becomes `DONE` and renders `nextBlocks` from the status result, so a tip that actually landed is shown as landed (`drop_execute_response`). If the status lookup itself fails, it is retried with backoff (1s, 2s, 4s, 8s, then every 10s) and the card says when the next check runs. Status reads are safe to repeat; execute is never repeated. The retry loop stops as soon as the prompt is retired locally (superseded, user switch).
 - A 410 body can carry a fresh `confirmation_prompt`. Follow-up prompts inside a parsed execute body are registered. The expired card stays inert; the new one is the only live control.
-- Expiry is evaluated against the server clock on a 1s tick and again at the start of `confirm()`. Without a clock sample, `canStartConfirm` is false. We do not guess with the laptop clock.
+- Expiry uses the server clock (1s tick + again at `confirm()`). Without a clock sample, `canStartConfirm` is false.
 
 The card stays on screen after `DONE` (“Confirmed”) and renders the execute `nextBlocks` under it. `cancel_order` uses a destructive treatment (copy, border) so it is not the same object as place-order. A `verification_gate` is a different component: “Blocked — nothing executed”, no confirm control, requirement shown as text rather than colour.
 
-There is no “Not now” / “Keep order” control. The contract has no way to decline a prompt, and a client-only dismiss would hide a token that is still live on the server. Not confirming is the decline: the prompt expires or is replaced. See “Contract changes I would propose”.
+There is no decline control: the contract cannot void a live token, and a client-only dismiss would only hide it. Not confirming is the decline until expiry or supersession (proposed `void` endpoint below).
 
 ## Untrusted content
 
@@ -241,12 +247,11 @@ The shell **Help** tab searches `GET /api/kb/search` (paginated). Results reuse 
 
 ## Assumptions
 
-- The spec wins if it and the mock disagree. Nothing in this client depends on a mock behaviour that contradicts the README. Chaos modes are handled as the README describes them.
-- Idle cutoff of 2.5s after the first byte is our reading of a stream that stops without `done` and without a clean close. A clean close takes the same incomplete path immediately.
-- `token_used` is success. Showing an error there would punish the user for a duplicate we already tried to prevent.
-- 429 is user-paced. Auto-retry would hide the `Retry-After` window and make a second attempt easy to fire early.
-- Relative dates (“today”, “2 days ago”) use the server’s Istanbul calendar day, not the browser timezone.
-- A prompt has a single control, Confirm. Without a void endpoint, a decline button could only pretend; see the lifecycle section.
+- The spec wins if it and the mock disagree. Chaos modes follow the README, not mock-only quirks.
+- The 2.5s idle cutoff covers a stream that stops without `done` and without a clean close; a clean close takes the incomplete path immediately.
+- `token_used` is success — showing an error would punish a duplicate we already tried to prevent.
+- 429 is user-paced; auto-retry would hide the `Retry-After` window.
+- Relative dates use the server’s Europe/Istanbul calendar day, not the browser timezone.
 
 ## Tests
 
@@ -263,39 +268,22 @@ The tests pin the behaviours that move money or paint the wrong turn. They are n
 | Shell | `features/shell/queryKeys.test.ts`, `features/shell/UserSwitcher/resolvePersona.test.ts` | Cache keys scoped per user; the persona pill never shows a raw id while a read is pending, and falls back to `district` without a hint |
 | Sources | `features/audit/Sources/trustHint.test.ts` | Archive tag, legacy title, and missing date become hints; a current dated policy gets none |
 
-## Delivery timeline
-
-Client work on `main`: 2026-10-01 → 2026-10-04 (case package imported the day before). Order followed risk: stream, validation, and confirmation before chrome.
-
-| Day | Date | Shipped |
-|---|---|---|
-| 1 | Oct 1 | Scaffold `client/`: Vite + React + TypeScript, folder skeleton, root `client` scripts. |
-| 2 | Oct 2 | Core path: NDJSON stream + generation guard, API client + `X-Sofra-Now`, Zod fail-closed catalog, confirmation state machine (single in-flight execute, reconcile, supersede), server clock, shell queries + invalidation, SafeMarkdown, chat orchestration (stop / conversation id), audit inspector, keyboard a11y. |
-| 3 | Oct 3 | Chat panel and message list UI; shell and audit layout. |
-| 4 | Oct 4 | Confirmation UX, visual polish, phone layout, Sources / Help / SR announcements, Storybook workbench, assets, client README. |
-
-Oct 2 is front-loaded on purpose. The money and trust decisions had to live in one owned place, each, before the transcript was allowed to look finished.
-
 ## Contract changes I would propose
 
 The client speaks the contract as given. These are the places where it had to infer something the server already knows, with the change I would make.
 
 | Gap | What the client does today | Proposed change |
 |---|---|---|
-| No way to decline a prompt | The prompt has no decline control; a live token stays live until it expires or is superseded | `POST /api/actions/void { user_id, confirm_token }` → `{ state: "void" }`. A “Not now” control could then retire the token for real, and the ledger could tell “declined” from “ignored”. |
-| Supersession is implicit | The store infers “replaced” from same user + same action, locally | `confirmation_prompt.supersedes: <confirm_token>?`. The server states which prompt it replaced; the client stops guessing, and a resumed conversation can mark old prompts without asking status for each. |
-| A silent stream and a slow stream look the same | A 2.5s idle timer after the first byte marks the turn incomplete | A `heartbeat` stream event every N seconds while the model is working. No heartbeat for 2N means dead; the timer stops being a client assumption. |
-| Version is refused, not negotiated | `version: "2"` freezes the turn and tells the user plainly | The client sends `Accept-Version: 1` on `POST /api/chat`; the server either answers in v1 or returns `406` before streaming. No half-sent document the client cannot use. |
-| KB trust is heuristic | Trust hints come from tags, titles, id suffixes, missing dates | `status: current \| archived \| superseded`, `superseded_by`, and `effective_from` on every KB document. Citations can then say “superseded by X” instead of “looks old”. |
+| No way to decline a prompt | Confirm only; live token stays until expiry or supersession | `POST /api/actions/void` → then a real “Not now”, and the ledger can tell declined from ignored |
+| Supersession is implicit | Inferred locally from same user + same action | `confirmation_prompt.supersedes: <confirm_token>?` so the server names what it replaced |
+| Silent vs slow stream | 2.5s idle timer (above) | `heartbeat` events while the model works; no heartbeat for 2N ⇒ dead |
+| Version is refused, not negotiated | `version: "2"` freezes the turn | `Accept-Version: 1` on chat; server answers in v1 or `406` before streaming |
+| KB trust is heuristic | Tags, titles, id suffixes, missing dates | `status` / `superseded_by` / `effective_from` on every KB document |
 
 None of these change what the client may do with money. They remove inferences from the client, which is where the next bug would hide.
 
 ## What I would do with more time / production
 
-I cut two bonus items on purpose: **conversation restore after reload**, and **end-to-end tests against the ledger**. Both are worth doing; neither is worth doing thinly. A reload path that trusts anything other than `GET /api/actions/status` for pending tokens is worse than no restore. An E2E suite that does not pin rows 4–9, 17, and 20–22 against `/__admin/ledger` is theatre. I would land those next, with time to make the assertions the behavioural contract rather than a smoke pass.
+I cut two bonus items for time: **conversation restore after reload**, and **end-to-end tests against the ledger**. The must-haves (stream, validation, confirmation, shell freshness) took the weekend; a thin E2E or a restore that does not reconcile pending tokens through `GET /api/actions/status` would have been worse than leaving them out. With more time I would add both properly — restore against live status, and E2E that pins rows 4–9, 17, and 20–22 to `/__admin/ledger`.
 
-In production I would also:
-
-- Generate the Zod catalog from `schema/ui_spec.schema.json` in CI so hand-written schemas cannot drift, keeping `.strict()` as the generated default.
-- Add a “Not now” control backed by a real void once the contract exposes one; until then the prompt offers Confirm only.
-- Window the transcript before hundreds of block-heavy turns; lazy-load markdown and the audit inspector if the catalog or KB surface grows.
+In production I would also generate the Zod catalog from `schema/ui_spec.schema.json` in CI (keep `.strict()`), wire “Not now” once `void` exists, window long transcripts, and lazy-load markdown / audit if the surface grows.
